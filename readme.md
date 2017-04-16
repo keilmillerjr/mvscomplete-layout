@@ -6,7 +6,7 @@
 
 ## DESCRIPTION:
 
-mvscomplete is a layout for the [AttractMode](http://attractmode.org) front end. It is designed as a better option than a 161-in-1 multicart for the neo geo mvs. It works well at vga (640x480) and higher 4:3 aspect resolutions. Widescreen adaptiveness featuring a 6 slot configuration is next on the todo list.
+mvscomplete is a layout for the [AttractMode](http://attractmode.org) front end. It is designed as a better option than a 161-in-1 multicart for the neo geo mvs. It works well at vga (640x480) and higher 4:3 aspect resolutions. It will work at widescreen resolutions, but slot artwork will be stretched wider than the normal 3:5 ratio.
 
 ## Requirements:
 
@@ -165,10 +165,6 @@ artwork    snap            /Applications/mame0183b_macOS/videos;/Applications/ma
 artwork    wheel           /Applications/mame0183b_macOS/wheel
 
 ```
-
-## Todo
-
-- [ ] Obtain missing artwork for artwork pack
 
 ## Artwork
 
