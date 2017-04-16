@@ -12,31 +12,37 @@ fe.load_module("mvs");
 // Layout User Options
 // --------------------
 class UserConfig {
+	</ label="Hide Brackets in Game Title",
+		help="Hide brackets in game title.",
+		options="Yes, No",
+		order=1 />
+	hideBrackets="Yes";
+	
 	</ label="Marquee Opacity",
 		help="Percentage of opacity for marquee background.",
-		order=1 />
+		order=2 />
 	marqueeOpacity="85";
 	
 	</ label="Slot Artwork Type",
 		help="Type of slot artwork to display.",
-		order=2 />
+		order=3 />
 	slotArtworkType="marquee";
 	
 	</ label="Slot Artwork Shade",
 		help="Percentage of shade for non selected slot artwork.",
-		order=3 />
+		order=4 />
 	slotArtworkShade="50";
 	
 	</ label="Enable CRT Shader on Background",
 		help="Snap and Artwork is simulated to look like it is being displayed on a crt.",
 		options="Yes, No",
-		order=4 />
+		order=5 />
 	enableSnapShader="No";
 	
 	</ label="CRT Shader Resolution",
 		help="Select CRT resolution.",
 		options="640x480, 320x240",
-		order=5 />
+		order=6 />
 	shaderResolution="320x240";
 
 }
@@ -193,8 +199,10 @@ function favoriteString() {
 	return fe.game_info(Info.Favourite) == "1" ? "" : "";
 }
 
-function titleString() {
-	return fe.game_info(Info.Title).toupper();
+function titleString(index_offset = 0) {
+	local s = fe.game_info(Info.Title, index_offset).toupper();
+	if (toBool(config.hideBrackets)) s = split(s, "(/[");
+	return rstrip(s[0]);
 }
 
 function copyrightString() {
@@ -232,7 +240,7 @@ local displayName = fe.add_text("[!displayName]", -1, -1, 1, 1);
 local filter = fe.add_text("[!filterString]", -1, -1, 1, 1);
 	setProperties(filter, settings.filter);
 
-local mvs = MVS(config["slotArtworkType"], config["slotArtworkShade"]);
+local mvs = MVS(config.slotArtworkType, config.slotArtworkShade);
 	setProperties(mvs.slot_artwork[0], settings.slot_artwork_1);
 	setProperties(mvs.slot_artwork[1], settings.slot_artwork_2);
 	setProperties(mvs.slot_artwork[2], settings.slot_artwork_3);
@@ -260,15 +268,15 @@ function favoriteTransition(ttype, var, transition_time) {
 // --------------------
 if (fe.load_module("shader")) {
 	// Snap Shader
-	if (toBool(config["enableSnapShader"])) {
-		snapShader <- CrtLottes(splitRes(config["shaderResolution"], "width"), splitRes(config["shaderResolution"], "height"));
+	if (toBool(config.enableSnapShader)) {
+		snapShader <- CrtLottes(splitRes(config.shaderResolution, "width"), splitRes(config.shaderResolution, "height"));
 		snap.shader = snapShader.shader;
 	}
 	
 	// Slot Artwork Shader
 	slotArtworkShader <- RoundCorners(settings.slot_artwork_radius, settings.slot_artwork_1.width, settings.slot_artwork_1.height);
-	mvs.slot_artwork[0].shader = slotArtworkShader.shader;
-	mvs.slot_artwork[1].shader = slotArtworkShader.shader;
-	mvs.slot_artwork[2].shader = slotArtworkShader.shader;
-	mvs.slot_artwork[3].shader = slotArtworkShader.shader;
+		mvs.slot_artwork[0].shader = slotArtworkShader.shader;
+		mvs.slot_artwork[1].shader = slotArtworkShader.shader;
+		mvs.slot_artwork[2].shader = slotArtworkShader.shader;
+		mvs.slot_artwork[3].shader = slotArtworkShader.shader;
 }
