@@ -21,7 +21,7 @@ You may need to change file paths as necessary if your differs.
 
 1. copy layout files to ```$HOME/Apps/AttractModeFE/layouts/mvscomplete/```
 2. The [Debug module](https://github.com/keilmillerjr/debug-module) is optional. It is recommended for debugging.
-3. The [Shader module](https://github.com/keilmillerjr/shader-module) is optional. It is required for you to install it if you intend to use crt shaders within the layout.
+3. The [Shader module](https://github.com/keilmillerjr/shader-module) is RECOMMENDED. It is required for you to install it if you intend to use crt shaders within the layout, or have round corners on the slot artwork.
 4. The [Helpers module](https://github.com/keilmillerjr/helpers-module) is REQUIRED for you to install. The layout will not work correctly without it.
 5. The [MVS module](https://github.com/keilmillerjr/mvs-module) is REQUIRED for you to install. The layout will not work correctly without it.
 6. The fade module is required. It is included with attractmode by default. No additional install is required.

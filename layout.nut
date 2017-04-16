@@ -127,34 +127,6 @@ local settings = {
 		height = percentage(4, flh),
 		align = Align.Right,
 	},
-	slot_background_1 = {
-		x = percentage(4, flw),
-		y = percentage(8, flh),
-		width = percentage(20, flw),
-		height = percentage(33, flh),
-		red = colors.white.r, green = colors.white.g, blue = colors.white.b,
-	},
-	slot_background_2 = {
-		x = percentage(28, flw),
-		y = percentage(8, flh),
-		width = percentage(20, flw),
-		height = percentage(33, flh),
-		red = colors.white.r, green = colors.white.g, blue = colors.white.b,
-	},
-	slot_background_3 = {
-		x = percentage(52, flw),
-		y = percentage(8, flh),
-		width = percentage(20, flw),
-		height = percentage(33, flh),
-		red = colors.white.r, green = colors.white.g, blue = colors.white.b,
-	},
-	slot_background_4 = {
-		x = percentage(76, flw),
-		y = percentage(8, flh),
-		width = percentage(20, flw),
-		height = percentage(33, flh),
-		red = colors.white.r, green = colors.white.g, blue = colors.white.b,
-	},
 	slot_artwork_1 = {
 		x = percentage(4.5, flw),
 		y = percentage(8.5, flh),
@@ -179,6 +151,7 @@ local settings = {
 		width = percentage(19, flw),
 		height = percentage(32, flh),
 	},
+	slot_artwork_radius = percentage(1.5, flw),
 	slot_entry_1 = {
 		x = percentage(4, flw),
 		y = percentage(43, flh),
@@ -259,15 +232,6 @@ local displayName = fe.add_text("[!displayName]", -1, -1, 1, 1);
 local filter = fe.add_text("[!filterString]", -1, -1, 1, 1);
 	setProperties(filter, settings.filter);
 
-local slot_background_1 = fe.add_image("white.png", -1, -1, 1, 1);
-	setProperties(slot_background_1, settings.slot_background_1);
-local slot_background_2 = fe.add_image("white.png", -1, -1, 1, 1);
-	setProperties(slot_background_2, settings.slot_background_2);
-local slot_background_3 = fe.add_image("white.png", -1, -1, 1, 1);
-	setProperties(slot_background_3, settings.slot_background_3);
-local slot_background_4 = fe.add_image("white.png", -1, -1, 1, 1);
-	setProperties(slot_background_4, settings.slot_background_4);
-
 local mvs = MVS(config["slotArtworkType"], config["slotArtworkShade"]);
 	setProperties(mvs.slot_artwork[0], settings.slot_artwork_1);
 	setProperties(mvs.slot_artwork[1], settings.slot_artwork_2);
@@ -295,10 +259,16 @@ function favoriteTransition(ttype, var, transition_time) {
 // Enable Shaders
 // --------------------
 if (fe.load_module("shader")) {
+	// Snap Shader
 	if (toBool(config["enableSnapShader"])) {
-		local snapShader = CrtLottes(splitRes(config["shaderResolution"], "width"), splitRes(config["shaderResolution"], "height"));
+		snapShader <- CrtLottes(splitRes(config["shaderResolution"], "width"), splitRes(config["shaderResolution"], "height"));
 		snap.shader = snapShader.shader;
 	}
+	
+	// Slot Artwork Shader
+	slotArtworkShader <- RoundCorners(settings.slot_artwork_radius, settings.slot_artwork_1.width, settings.slot_artwork_1.height);
+	mvs.slot_artwork[0].shader = slotArtworkShader.shader;
+	mvs.slot_artwork[1].shader = slotArtworkShader.shader;
+	mvs.slot_artwork[2].shader = slotArtworkShader.shader;
+	mvs.slot_artwork[3].shader = slotArtworkShader.shader;
 }
-
-try { log.send(ScreenWidth + " x " + ScreenHeight); } catch(e) {}
