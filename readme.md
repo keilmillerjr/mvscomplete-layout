@@ -1,17 +1,17 @@
 # mvscomplete layout for AttractMode front end
 
-*v.01* by Keil Miller Jr [Keil Miller Jr](http://keilmillerjr.com)
+*v.02* by Keil Miller Jr [Keil Miller Jr](http://keilmillerjr.com)
 
 ![Image of layout](layout.png)
 
 ## DESCRIPTION:
 
-mvscomplete is a layout for the [AttractMode](http://attractmode.org) front end. It is designed as a better option than a 161-in-1 multicart for the neo geo mvs. It works well at vga (640x480) and higher 4:3 aspect resolutions. It will work at widescreen resolutions, but slot artwork will be stretched wider than the normal 3:5 ratio.
+mvscomplete is a layout for the [AttractMode](http://attractmode.org) front end. It is designed as a better option than a 161-in-1 multicart for the neo geo mvs. It works well at vga (640x480) resolution.
 
 ## Requirements:
 
 * AttractMode compatible device with AttractMode 2.2 installed
-* Mame/GroovyMame installed with corresponding neo roms and bios
+* Mame/GroovyMame installed with corresponding neogeo roms and bios
 
 ## Paths
 

@@ -33,16 +33,22 @@ class UserConfig {
 		order=4 />
 	slotArtworkShade="50";
 	
+	</ label="Enable Instructions",
+		help="Enable instructions for the layout.",
+		options="Yes, No",
+		order=5 />
+	enableInstructions="Yes";
+	
 	</ label="Enable CRT Shader on Background",
 		help="Snap and Artwork is simulated to look like it is being displayed on a crt.",
 		options="Yes, No",
-		order=5 />
+		order=6 />
 	enableSnapShader="No";
 	
 	</ label="CRT Shader Resolution",
 		help="Select CRT resolution.",
 		options="640x480, 320x240",
-		order=6 />
+		order=7 />
 	shaderResolution="320x240";
 
 }
@@ -63,6 +69,7 @@ local colors = {
 	white = { r = 255, g = 255, b = 255 },
 	grey = { r = 120, g = 120, b = 120 },
 	yellow = { r = 255, g = 254, b = 0 },
+	red = { r = 246, g = 36, b = 10 },
 }
 
 // --------------------
@@ -75,41 +82,11 @@ local settings = {
 		width = flw,
 		height = flh,
 	},
-	gradient = {
-		x = 0,
-		y = percentage(88, flh),
-		width = flw,
-		height = percentage(12, flh),
-	},
-	favorite = {
-		x = percentage(2, flw),
-		y = percentage(92, flh),
-		width = percentage(4, flw),
-		height = percentage(4, flh),
-		align = Align.Left,
-		red = colors.yellow.r, green = colors.yellow.g, blue = colors.yellow.b,
-		font = "FontAwesome",
-	},
-	title = {
-		x = percentage(2, flw),
-		y = percentage(92, flh),
-		width = percentage(47, flw),
-		height = percentage(4, flh),
-		align = Align.Left,
-	},
-	titleFavorite = {
-		x = percentage(6, flw),
-		y = percentage(92, flh),
-		width = percentage(43, flw),
-		height = percentage(4, flh),
-		align = Align.Left,
-	},
-	copyright = {
-		x = percentage(51, flw),
-		y = percentage(92, flh),
-		width = percentage(47, flw),
-		height = percentage(4, flh),
-		align = Align.Right,
+	instructions = {
+		x = percentage(65.2, flw),
+		y = percentage(85, flh),
+		width = percentage(30, flw),
+		height = percentage(13, flh),
 	},
 	marquee = {
 		x = 0,
@@ -119,7 +96,7 @@ local settings = {
 		red = colors.black.r, green = colors.black.g, blue = colors.black.b,
 		alpha = percentage(config["marqueeOpacity"].tointeger(), 255),
 	},
-	displayName = {
+	title = {
 		x = percentage(28.6, flw),
 		y = percentage(2, flh),
 		width = percentage(42.8, flw),
@@ -158,6 +135,30 @@ local settings = {
 		height = percentage(32, flh),
 	},
 	slot_artwork_radius = percentage(1.5, flw),
+	slot_favorite_1 = {
+		x = percentage(5.8, flw),
+		y = percentage(9.5, flh),
+		width = percentage(4, flw),
+		height = percentage(5, flh),
+	},
+	slot_favorite_2 = {
+		x = percentage(29.6, flw),
+		y = percentage(9.5, flh),
+		width = percentage(4, flw),
+		height = percentage(5, flh),
+	},
+	slot_favorite_3 = {
+		x = percentage(54.4, flw),
+		y = percentage(9.5, flh),
+		width = percentage(4, flw),
+		height = percentage(5, flh),
+	},
+	slot_favorite_4 = {
+		x = percentage(77.2, flw),
+		y = percentage(9.5, flh),
+		width = percentage(4, flw),
+		height = percentage(5, flh),
+	},
 	slot_entry_1 = {
 		x = percentage(4.8, flw),
 		y = percentage(43, flh),
@@ -191,26 +192,22 @@ local settings = {
 // --------------------
 // Magic Functions
 // --------------------
-function displayName() {
-	return fe.list.name.toupper();
-}
-
-function favoriteString() {
-	return fe.game_info(Info.Favourite) == "1" ? "" : "";
-}
-
 function titleString(index_offset = 0) {
 	local s = fe.game_info(Info.Title, index_offset).toupper();
 	if (toBool(config.hideBrackets)) s = split(s, "(/[");
 	return rstrip(s[0]);
 }
 
-function copyrightString() {
-	return fe.game_info(Info.Year).toupper() + " " + fe.game_info(Info.Manufacturer).toupper();
-}
-
 function filterString() {
 	return fe.filters[fe.list.filter_index].name.toupper();
+}
+
+//function favoriteString(index_offset) {
+//	return fe.game_info(Info.Favourite, index_offset) == "1" ? "" : "";
+//}
+
+function favoriteString(index_offset) {
+	return fe.game_info(Info.Favourite, index_offset) == "1" ? "heart-red.png" : "";
 }
 
 // --------------------
@@ -219,32 +216,28 @@ function filterString() {
 local snap = FadeArt("snap", -1, -1, 1, 1);
 	setProperties(snap, settings.snap);
 
-local gradient = fe.add_image("gradient.png", -1, -1, 1, 1);
-	setProperties(gradient, settings.gradient);
-
-local favorite = fe.add_text("[!favoriteString]", -1, -1, 1, 1);
-	setProperties(favorite, settings.favorite);
-
-local title = fe.add_text("[!titleString]", -1, -1, 1, 1);
-	setProperties(title, settings.title);
-
-local copyright = fe.add_text("[!copyrightString]", -1, -1, 1, 1);
-	setProperties(copyright, settings.copyright);
+local instructions = fe.add_image("instructions.png", -1, -1, 1, 1);
+	setProperties(instructions, settings.instructions);
+	if (!toBool(config.enableInstructions)) { instructions.visible = false; }
 
 local marquee = fe.add_image("white.png", -1, -1, 1, 1);
 	setProperties(marquee, settings.marquee);
 
-local displayName = fe.add_text("[!displayName]", -1, -1, 1, 1);
-	setProperties(displayName, settings.displayName);
+local title = fe.add_text("[!titleString]", -1, -1, 1, 1);
+	setProperties(title, settings.title);
 
 local filter = fe.add_text("[!filterString]", -1, -1, 1, 1);
 	setProperties(filter, settings.filter);
 
-local mvs = MVS(config.slotArtworkType, config.slotArtworkShade);
+local mvs = MVS(config.slotArtworkType, config.slotArtworkShade, 4, true);
 	setProperties(mvs.slot_artwork[0], settings.slot_artwork_1);
 	setProperties(mvs.slot_artwork[1], settings.slot_artwork_2);
 	setProperties(mvs.slot_artwork[2], settings.slot_artwork_3);
 	setProperties(mvs.slot_artwork[3], settings.slot_artwork_4);
+	setProperties(mvs.slot_favorite[0], settings.slot_favorite_1);
+	setProperties(mvs.slot_favorite[1], settings.slot_favorite_2);
+	setProperties(mvs.slot_favorite[2], settings.slot_favorite_3);
+	setProperties(mvs.slot_favorite[3], settings.slot_favorite_4);
 	setProperties(mvs.slot_entry[0], settings.slot_entry_1);
 	setProperties(mvs.slot_entry[1], settings.slot_entry_2);
 	setProperties(mvs.slot_entry[2], settings.slot_entry_3);
@@ -253,15 +246,6 @@ local mvs = MVS(config.slotArtworkType, config.slotArtworkShade);
 // --------------------
 // Transitions
 // --------------------
-fe.add_transition_callback("favoriteTransition");
-function favoriteTransition(ttype, var, transition_time) {
-	if (fe.game_info(Info.Favourite) == "1") {
-		setProperties(title, settings.titleFavorite);
-	}
-	else {
-		setProperties(title, settings.title);
-	}
-}
 
 // --------------------
 // Enable Shaders
