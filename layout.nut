@@ -50,7 +50,12 @@ class UserConfig {
 		options="640x480, 320x240",
 		order=7 />
 	shaderResolution="320x240";
-
+	
+	</ label="Enable SoundFx",
+		help="Enable SoundFx.",
+		options="Yes, No",
+		order=8 />
+	enableSoundFx="Yes";
 }
 local config = fe.get_config();
 
@@ -83,10 +88,10 @@ local settings = {
 		height = flh,
 	},
 	instructions = {
-		x = percentage(65.2, flw),
-		y = percentage(85, flh),
-		width = percentage(30, flw),
-		height = percentage(13, flh),
+		x = percentage(70.2, flw),
+		y = percentage(83.2, flh),
+		width = percentage(25, flw),
+		height = percentage(12, flh),
 	},
 	marquee = {
 		x = 0,
@@ -207,7 +212,7 @@ function filterString() {
 //}
 
 function favoriteString(index_offset) {
-	return fe.game_info(Info.Favourite, index_offset) == "1" ? "heart-red.png" : "";
+	return fe.game_info(Info.Favourite, index_offset) == "1" ? "heart" : "";
 }
 
 // --------------------
@@ -244,10 +249,6 @@ local mvs = MVS(config.slotArtworkType, config.slotArtworkShade, 4, true);
 	setProperties(mvs.slot_entry[3], settings.slot_entry_4);
 
 // --------------------
-// Transitions
-// --------------------
-
-// --------------------
 // Enable Shaders
 // --------------------
 if (fe.load_module("shader")) {
@@ -263,4 +264,49 @@ if (fe.load_module("shader")) {
 		mvs.slot_artwork[1].shader = slotArtworkShader.shader;
 		mvs.slot_artwork[2].shader = slotArtworkShader.shader;
 		mvs.slot_artwork[3].shader = slotArtworkShader.shader;
+}
+
+// --------------------
+// Sounds
+// --------------------
+
+local click = fe.add_sound("click.mp3");
+	click.loop = false;
+	click.playing = false;
+
+local select = fe.add_sound("select.mp3"); // duration via terminal $ afinfo select.mp3 : 1.619575 sec
+	select.loop = false;
+	select.playing = false;
+
+if (toBool(config.enableSoundFx)) {
+	fe.add_signal_handler("soundFxSignals")
+	function soundFxSignals(signal_str) {
+		switch(signal_str) {
+			case "prev_game":
+			case "next_game":
+			case "prev_filter":
+			case "next_filter":
+			case "add_favourite":
+			case "prev_letter":
+			case "next_letter":
+				click.playing = true;
+				break;
+			case "select":
+				select.playing = true;
+				break;
+		}
+		return false;
+	}
+	try { log.send(select.duration); } catch(e) {}
+	fe.add_transition_callback("soundFxTransitions");
+	function soundFxTransitions(ttype, var, ttime) {
+		switch(ttype) {
+			case Transition.ToGame:
+				if (ttime < 1620) {
+					return true;
+				}
+				break;
+		}
+		return false;
+	}
 }
