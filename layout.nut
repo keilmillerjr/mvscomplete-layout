@@ -297,7 +297,7 @@ if (toBool(config.enableSoundFx)) {
 		}
 		return false;
 	}
-	try { log.send(select.duration); } catch(e) {}
+	
 	fe.add_transition_callback("soundFxTransitions");
 	function soundFxTransitions(ttype, var, ttime) {
 		switch(ttype) {
