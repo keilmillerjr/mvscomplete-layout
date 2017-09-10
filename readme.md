@@ -141,12 +141,12 @@ saver_config
 intro_config
   param                detect_aspect Yes
   param                layout_rotation none
-  param                play_intro No
+  param                play_intro Yes
   param                video_16x9 intro.mp4
   param                video_3x4 intro_3x4.mp4
   param                video_4x3 intro_4x3.mp4
   param                video_9x16 intro_9x16.mp4
-  param                video_default intro.mp4
+  param                video_default $HOME/.attract/layouts/mvscomplete/neo boot.mp4
 
 
 ```
@@ -178,6 +178,13 @@ Artwork can be obtained from the following, and neo geo artwork and roms can be 
 * [AntoPISA's progetto-SNAPS MAME Snapshots - Snap](http://www.progettosnaps.net/snapshots/) for snaps
 * [Emumovies](http://emumovies.com) for videos
 * [HypserSpin](http://www.hyperspin-fe.com) for wheel
+
+## Intro
+
+Included are some boot videos if you choose to use the Intro feature of Attract Mode. You can access this feature from the config menu (tab).
+
+* neo boot.mp4 for original neo geo boot
+* snk boot.mp4 for new snk boot
 
 ## Credit
 
