@@ -57,149 +57,19 @@ class UserConfig {
 		order=8 />
 	enableSoundFx="Yes";
 }
-local config = fe.get_config();
+local user_config = fe.get_config();
 
 // --------------------
-// Layout Constants
+// Config
 // --------------------
-local flw = fe.layout.width;
-local flh = fe.layout.height;
-fe.layout.font = "VAG Rounded Bold";
-
-// --------------------
-// Colors
-// --------------------
-local colors = {
-	black = { r = 0, g = 0, b = 0 },
-	white = { r = 255, g = 255, b = 255 },
-	grey = { r = 120, g = 120, b = 120 },
-	yellow = { r = 255, g = 254, b = 0 },
-	red = { r = 246, g = 36, b = 10 },
-}
-
-// --------------------
-// Settings
-// --------------------
-local settings = {
-	snap = {
-		x = 0,
-		y = 0,
-		width = flw,
-		height = flh,
-	},
-	instructions = {
-		x = percentage(70.2, flw),
-		y = percentage(83.2, flh),
-		width = percentage(25, flw),
-		height = percentage(12, flh),
-	},
-	marquee = {
-		x = 0,
-		y = 0,
-		width = flw,
-		height = percentage(49, flh),
-		red = colors.black.r, green = colors.black.g, blue = colors.black.b,
-		alpha = percentage(config["marqueeOpacity"].tointeger(), 255),
-	},
-	title = {
-		x = percentage(28.6, flw),
-		y = percentage(2, flh),
-		width = percentage(42.8, flw),
-		height = percentage(4, flh),
-		align = Align.Centre,
-	},
-	filter = {
-		x = percentage(76.2, flw),
-		y = percentage(2, flh),
-		width = percentage(19, flw),
-		height = percentage(4, flh),
-		align = Align.Right,
-	},
-	slot_artwork_1 = {
-		x = percentage(4.8, flw),
-		y = percentage(8.5, flh),
-		width = percentage(19, flw),
-		height = percentage(32, flh),
-	},
-	slot_artwork_2 = {
-		x = percentage(28.6, flw),
-		y = percentage(8.5, flh),
-		width = percentage(19, flw),
-		height = percentage(32, flh),
-	},
-	slot_artwork_3 = {
-		x = percentage(53.4, flw),
-		y = percentage(8.5, flh),
-		width = percentage(19, flw),
-		height = percentage(32, flh),
-	},
-	slot_artwork_4 = {
-		x = percentage(76.2, flw),
-		y = percentage(8.5, flh),
-		width = percentage(19, flw),
-		height = percentage(32, flh),
-	},
-	slot_artwork_radius = percentage(1.5, flw),
-	slot_favorite_1 = {
-		x = percentage(5.8, flw),
-		y = percentage(9.5, flh),
-		width = percentage(4, flw),
-		height = percentage(5, flh),
-	},
-	slot_favorite_2 = {
-		x = percentage(29.6, flw),
-		y = percentage(9.5, flh),
-		width = percentage(4, flw),
-		height = percentage(5, flh),
-	},
-	slot_favorite_3 = {
-		x = percentage(54.4, flw),
-		y = percentage(9.5, flh),
-		width = percentage(4, flw),
-		height = percentage(5, flh),
-	},
-	slot_favorite_4 = {
-		x = percentage(77.2, flw),
-		y = percentage(9.5, flh),
-		width = percentage(4, flw),
-		height = percentage(5, flh),
-	},
-	slot_entry_1 = {
-		x = percentage(4.8, flw),
-		y = percentage(43, flh),
-		width = percentage(19, flw),
-		height = percentage(4, flh),
-		align = Align.Centre,
-	},
-	slot_entry_2 = {
-		x = percentage(28.6, flw),
-		y = percentage(43, flh),
-		width = percentage(19, flw),
-		height = percentage(4, flh),
-		align = Align.Centre,
-	},
-	slot_entry_3 = {
-		x = percentage(53.4, flw),
-		y = percentage(43, flh),
-		width = percentage(19, flw),
-		height = percentage(4, flh),
-		align = Align.Centre,
-	},
-	slot_entry_4 = {
-		x = percentage(76.2, flw),
-		y = percentage(43, flh),
-		width = percentage(19, flw),
-		height = percentage(4, flh),
-		align = Align.Centre,
-	},
-}
+fe.do_nut("config.nut");
 
 // --------------------
 // Magic Functions
 // --------------------
 function titleString(index_offset = 0) {
 	local s = fe.game_info(Info.Title, index_offset).toupper();
-	if (toBool(config.hideBrackets)) s = split(s, "(/[");
+	if (toBool(user_config.hideBrackets)) s = split(s, "(/[");
 	return rstrip(s[0]);
 }
 
@@ -219,47 +89,48 @@ function favoriteString(index_offset) {
 // Layout
 // --------------------
 local snap = FadeArt("snap", -1, -1, 1, 1);
-	setProperties(snap, settings.snap);
+	setProps(snap, config.snap);
 
 local instructions = fe.add_image("instructions.png", -1, -1, 1, 1);
-	setProperties(instructions, settings.instructions);
-	if (!toBool(config.enableInstructions)) { instructions.visible = false; }
+	setProps(instructions, config.instructions);
+	if (!toBool(user_config.enableInstructions)) { instructions.visible = false; }
 
 local marquee = fe.add_image("white.png", -1, -1, 1, 1);
-	setProperties(marquee, settings.marquee);
+	setProps(marquee, config.marquee);
+	marquee.alpha = per(user_config["marqueeOpacity"].tointeger(), 255);
 
 local title = fe.add_text("[!titleString]", -1, -1, 1, 1);
-	setProperties(title, settings.title);
+	setProps(title, config.title);
 
 local filter = fe.add_text("[!filterString]", -1, -1, 1, 1);
-	setProperties(filter, settings.filter);
+	setProps(filter, config.filter);
 
-local mvs = MVS(config.slotArtworkType, config.slotArtworkShade, 4, true);
-	setProperties(mvs.slot_artwork[0], settings.slot_artwork_1);
-	setProperties(mvs.slot_artwork[1], settings.slot_artwork_2);
-	setProperties(mvs.slot_artwork[2], settings.slot_artwork_3);
-	setProperties(mvs.slot_artwork[3], settings.slot_artwork_4);
-	setProperties(mvs.slot_favorite[0], settings.slot_favorite_1);
-	setProperties(mvs.slot_favorite[1], settings.slot_favorite_2);
-	setProperties(mvs.slot_favorite[2], settings.slot_favorite_3);
-	setProperties(mvs.slot_favorite[3], settings.slot_favorite_4);
-	setProperties(mvs.slot_entry[0], settings.slot_entry_1);
-	setProperties(mvs.slot_entry[1], settings.slot_entry_2);
-	setProperties(mvs.slot_entry[2], settings.slot_entry_3);
-	setProperties(mvs.slot_entry[3], settings.slot_entry_4);
+local mvs = MVS(user_config.slotArtworkType, user_config.slotArtworkShade, 4, true);
+	setProps(mvs.slot_artwork[0], config.slot_artwork_1);
+	setProps(mvs.slot_artwork[1], config.slot_artwork_2);
+	setProps(mvs.slot_artwork[2], config.slot_artwork_3);
+	setProps(mvs.slot_artwork[3], config.slot_artwork_4);
+	setProps(mvs.slot_favorite[0], config.slot_favorite_1);
+	setProps(mvs.slot_favorite[1], config.slot_favorite_2);
+	setProps(mvs.slot_favorite[2], config.slot_favorite_3);
+	setProps(mvs.slot_favorite[3], config.slot_favorite_4);
+	setProps(mvs.slot_entry[0], config.slot_entry_1);
+	setProps(mvs.slot_entry[1], config.slot_entry_2);
+	setProps(mvs.slot_entry[2], config.slot_entry_3);
+	setProps(mvs.slot_entry[3], config.slot_entry_4);
 
 // --------------------
 // Enable Shaders
 // --------------------
 if (fe.load_module("shader")) {
 	// Snap Shader
-	if (toBool(config.enableSnapShader)) {
-		snapShader <- CrtLottes(splitRes(config.shaderResolution, "width"), splitRes(config.shaderResolution, "height"));
+	if (toBool(user_config.enableSnapShader)) {
+		snapShader <- CrtLottes(splitRes(user_config.shaderResolution, "width"), splitRes(user_config.shaderResolution, "height"));
 		snap.shader = snapShader.shader;
 	}
 	
 	// Slot Artwork Shader
-	slotArtworkShader <- RoundCorners(settings.slot_artwork_radius, settings.slot_artwork_1.width, settings.slot_artwork_1.height);
+	slotArtworkShader <- RoundCorners(config.slot_artwork_radius, config.slot_artwork_1.width, config.slot_artwork_1.height);
 		mvs.slot_artwork[0].shader = slotArtworkShader.shader;
 		mvs.slot_artwork[1].shader = slotArtworkShader.shader;
 		mvs.slot_artwork[2].shader = slotArtworkShader.shader;
@@ -278,7 +149,7 @@ local select = fe.add_sound("select.mp3"); // duration via terminal $ afinfo sel
 	select.loop = false;
 	select.playing = false;
 
-if (toBool(config.enableSoundFx)) {
+if (toBool(user_config.enableSoundFx)) {
 	fe.add_signal_handler("soundFxSignals")
 	function soundFxSignals(signal_str) {
 		switch(signal_str) {
