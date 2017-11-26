@@ -1,11 +1,10 @@
 // --------------------
 // Load Modules
 // --------------------
-if (fe.load_module("debug")) log <- Log();
-fe.load_module("shader");
 fe.load_module("helpers");
+fe.load_module("shader");
 fe.load_module("fade");
-fe.load_module("mvs");
+fe.load_module("shuffle");
 
 
 // --------------------
@@ -26,12 +25,12 @@ class UserConfig {
 	</ label="Slot Artwork Type",
 		help="Type of slot artwork to display.",
 		order=3 />
-	slotArtworkType="marquee";
+	artworkType="marquee";
 	
 	</ label="Slot Artwork Shade",
 		help="Percentage of shade for non selected slot artwork.",
 		order=4 />
-	slotArtworkShade="50";
+	artworkShade="50";
 	
 	</ label="Enable Instructions",
 		help="Enable instructions for the layout.",
@@ -67,6 +66,10 @@ fe.do_nut("config.nut");
 // --------------------
 // Magic Functions
 // --------------------
+function displayString() {
+	return fe.displays[fe.list.display_index].name.toupper();
+}
+
 function titleString(index_offset = 0) {
 	local s = fe.game_info(Info.Title, index_offset).toupper();
 	if (toBool(user_config.hideBrackets)) s = split(s, "(/[");
@@ -77,12 +80,8 @@ function filterString() {
 	return fe.filters[fe.list.filter_index].name.toupper();
 }
 
-//function favoriteString(index_offset) {
-//	return fe.game_info(Info.Favourite, index_offset) == "1" ? "" : "";
-//}
-
 function favoriteString(index_offset) {
-	return fe.game_info(Info.Favourite, index_offset) == "1" ? "heart" : "";
+	return fe.game_info(Info.Favourite, index_offset) == "1" ? "heart.png" : "";
 }
 
 // --------------------
@@ -99,26 +98,51 @@ local marquee = fe.add_image("white.png", -1, -1, 1, 1);
 	setProps(marquee, config.marquee);
 	marquee.alpha = per(user_config["marqueeOpacity"].tointeger(), 255);
 
+local display = fe.add_text("[!displayString]", -1, -1, 1, 1);
+	setProps(display, config.display);
+
 local title = fe.add_text("[!titleString]", -1, -1, 1, 1);
 	setProps(title, config.title);
 
 local filter = fe.add_text("[!filterString]", -1, -1, 1, 1);
 	setProps(filter, config.filter);
 
-local mvs = MVS(user_config.slotArtworkType, user_config.slotArtworkShade, 4, true);
-	setProps(mvs.slot_artwork[0], config.slot_artwork_1);
-	setProps(mvs.slot_artwork[1], config.slot_artwork_2);
-	setProps(mvs.slot_artwork[2], config.slot_artwork_3);
-	setProps(mvs.slot_artwork[3], config.slot_artwork_4);
-	setProps(mvs.slot_favorite[0], config.slot_favorite_1);
-	setProps(mvs.slot_favorite[1], config.slot_favorite_2);
-	setProps(mvs.slot_favorite[2], config.slot_favorite_3);
-	setProps(mvs.slot_favorite[3], config.slot_favorite_4);
-	setProps(mvs.slot_entry[0], config.slot_entry_1);
-	setProps(mvs.slot_entry[1], config.slot_entry_2);
-	setProps(mvs.slot_entry[2], config.slot_entry_3);
-	setProps(mvs.slot_entry[3], config.slot_entry_4);
+class ShuffleArtwork extends Shuffle {
+	function select(slot) {
+		shadeObject(slot, 100);
+	}
+	
+	function deselect(slot) {
+		shadeObject(slot, user_config.artworkShade.tointeger());
+	}
+}
+local artwork = ShuffleArtwork(4, "artwork", user_config.artworkType, false);
+	setProps(artwork.slots[0], config.artwork[0]);
+	setProps(artwork.slots[1], config.artwork[1]);
+	setProps(artwork.slots[2], config.artwork[2]);
+	setProps(artwork.slots[3], config.artwork[3]);
 
+class ShuffleFavorite extends Shuffle {
+	function select(slot) {
+		shadeObject(slot, 100);
+	}
+
+	function deselect(slot) {
+		shadeObject(slot, user_config.artworkShade.tointeger());
+	}
+}
+local favorite = ShuffleFavorite(4, "image", "[!favoriteString]", false);
+	setProps(favorite.slots[0], config.favorite[0]);
+	setProps(favorite.slots[1], config.favorite[1]);
+	setProps(favorite.slots[2], config.favorite[2]);
+	setProps(favorite.slots[3], config.favorite[3]);
+
+local entry = Shuffle(4, "text", "[ListEntry]", false);
+	setProps(entry.slots[0], config.entry[0]);
+	setProps(entry.slots[1], config.entry[1]);
+	setProps(entry.slots[2], config.entry[2]);
+	setProps(entry.slots[3], config.entry[3]);
+	
 // --------------------
 // Enable Shaders
 // --------------------
@@ -130,11 +154,11 @@ if (fe.load_module("shader")) {
 	}
 	
 	// Slot Artwork Shader
-	slotArtworkShader <- RoundCorners(config.slot_artwork_radius, config.slot_artwork_1.width, config.slot_artwork_1.height);
-		mvs.slot_artwork[0].shader = slotArtworkShader.shader;
-		mvs.slot_artwork[1].shader = slotArtworkShader.shader;
-		mvs.slot_artwork[2].shader = slotArtworkShader.shader;
-		mvs.slot_artwork[3].shader = slotArtworkShader.shader;
+	artworkShader <- RoundCorners(config.artwork_radius, config.artwork[0].width, config.artwork[0].height);
+		artwork.slots[0].shader = artworkShader.shader;
+		artwork.slots[1].shader = artworkShader.shader;
+		artwork.slots[2].shader = artworkShader.shader;
+		artwork.slots[3].shader = artworkShader.shader;
 }
 
 // --------------------

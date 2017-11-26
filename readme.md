@@ -1,8 +1,8 @@
 # mvscomplete layout for AttractMode front end
 
-*v.02* by Keil Miller Jr [Keil Miller Jr](http://keilmillerjr.com)
+by Keil Miller Jr [Keil Miller Jr](http://keilmillerjr.com)
 
-![Image of layout](layout.png)
+![Image of layout](layout.gif)
 
 ## DESCRIPTION:
 
@@ -21,14 +21,13 @@ You may need to change file paths as necessary if your differs.
 
 1. Copy layout files to ```$HOME/Apps/AttractModeFE/layouts/mvscomplete/```
 2. The [Helpers module](https://github.com/keilmillerjr/helpers-module) is REQUIRED for you to install. The layout will not work correctly without it.
-3. The [MVS module](https://github.com/keilmillerjr/mvs-module) is REQUIRED for you to install. The layout will not work correctly without it.
+3. The [Shuffle module](https://github.com/keilmillerjr/shuffle-module) is REQUIRED for you to install. The layout will not work correctly without it.
 
 ## Optional Files
 
-1. The [Debug module](https://github.com/keilmillerjr/debug-module) is optional. It is recommended for debugging.
-2. The [Shader module](https://github.com/keilmillerjr/shader-module) is RECOMMENDED. Shader module is required if you intend to use crt shaders within the layout, or have round corners on the slot artwork.
-3. The [Leap plugin](https://github.com/keilmillerjr/leap-plugin) is optional. Leap plugin helps to leap over empty filters.
-4. The [FadeToGame plugin](https://github.com/keilmillerjr/fadetogame-plugin) is optional. FadeToGame will fade the screen when transitioning to and from a game. Be sure to set "To Game Run Time" to at least 1620 milliseconds if using SoundFx in mvscomplete, to prevent clipping of select SoundFx.
+1. The [Shader module](https://github.com/keilmillerjr/shader-module) is RECOMMENDED. Shader module is required if you intend to use crt shaders within the layout, or have round corners on the slot artwork.
+2. The [Leap plugin](https://github.com/keilmillerjr/leap-plugin) is optional. Leap plugin helps to leap over empty filters.
+3. The [FadeToGame plugin](https://github.com/keilmillerjr/fadetogame-plugin) is optional. FadeToGame will fade the screen when transitioning to and from a game. Be sure to set "To Game Run Time" to at least 1620 milliseconds if using SoundFx in mvscomplete, to prevent clipping of select SoundFx.
 
 ## Config
 
@@ -190,9 +189,9 @@ Included are some boot videos if you choose to use the Intro feature of Attract 
 
 Sounds for this layout were obtained from the following locations.
 
-* [click.mp3] (https://github.com/origamirobot/HyperSpin/blob/master/Media/Main%20Menu/Sound/Wheel%20Click.mp3)
-* [select.mp3] (https://www.youtube.com/watch?v=h7Z8aIfcK2g) converted to mp3 from [listentoyoutube] (http://www.listentoyoutube.com)
+* [click.mp3](https://github.com/origamirobot/HyperSpin/blob/master/Media/Main%20Menu/Sound/Wheel%20Click.mp3)
+* [select.mp3](https://www.youtube.com/watch?v=h7Z8aIfcK2g) converted to mp3 from [listentoyoutube](http://www.listentoyoutube.com)
 
 Artwork for this layout were obtained from the following locations.
 
-* [Free Arcade Button Vector] (https://www.vecteezy.com/vector-art/117124-free-arcade-button-vector) used in instructions image.
+* [Free Arcade Button Vector](https://www.vecteezy.com/vector-art/117124-free-arcade-button-vector) used in instructions image.
