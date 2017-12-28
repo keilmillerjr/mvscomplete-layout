@@ -18,6 +18,9 @@ fe.layout.font = "VAG Rounded Bold";
 		height = per(50, flh),
 		rgb = [0, 0, 0],
 	},
+	marqueeRed = {
+		rgb = [226, 52, 16],
+	},
 	container = {
 		x = ((flw - matchAspect(4, 3, "height", flh)) / 2) + overscan,
 		y = overscan,

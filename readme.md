@@ -147,6 +147,7 @@ layout_config	mvscomplete
 	param                enableSoundFx Yes
 	param                favoriteImage Heart
 	param                hideBrackets Yes
+	param                marqueeColor Black
 	param                marqueeOpacity 85
 	param                shaderResolution 320x240
 

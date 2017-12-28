@@ -30,31 +30,37 @@ class UserConfig {
 		order=3 />
 	hideBrackets="Yes";
 	
+	</ label="Marquee Color",
+		help="Color for marquee background.",
+		options="Black, Red",
+		order=4 />
+	marqueeColor="Black";
+	
 	</ label="Marquee Opacity",
 		help="Percentage of opacity for marquee background.",
-		order=4 />
+		order=5 />
 	marqueeOpacity="85";
 	
 	</ label="Slot Artwork Type",
 		help="Type of slot artwork to display.",
-		order=5 />
+		order=6 />
 	artworkType="marquee";
 	
 	</ label="Slot Artwork Shade",
 		help="Percentage of shade for non selected slot artwork.",
-		order=6 />
+		order=7 />
 	artworkShade="50";
 	
 	</ label="Favorite Image",
 		help="Select which image to show for favorites.",
 		options="Star, Heart",
-		order=7 />
+		order=8 />
 	favoriteImage="Star";
 	
 	</ label="Enable SoundFx",
 		help="Enable SoundFx.",
 		options="Yes, No",
-		order=8 />
+		order=9 />
 	enableSoundFx="Yes";
 }
 local user_config = fe.get_config();
@@ -89,6 +95,7 @@ local snap = FadeArt("snap", -1, -1, 1, 1);
 	
 local marquee = fe.add_image("white.png", -1, -1, 1, 1);
 	setProps(marquee, config.marquee);
+	if (user_config["marqueeColor"] == "Red") setProps(marquee, config.marqueeRed);
 	marquee.alpha = per(user_config["marqueeOpacity"].tointeger(), 255);
 
 local container = fe.add_surface(config.container.width, config.container.height);
