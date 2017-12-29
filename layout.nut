@@ -183,14 +183,14 @@ if (fe.load_module("shader")) {
 		snapShader <- CrtLottes(splitRes(user_config.shaderResolution, "width"), splitRes(user_config.shaderResolution, "height"));
 		snap.shader = snapShader.shader;
 	}
-}
 
-// Slot Artwork Shader
-artworkShader <- RoundCorners(config.artwork_radius, config.artwork[0].width, config.artwork[0].height);
-	artwork.slots[0].shader = artworkShader.shader;
-	artwork.slots[1].shader = artworkShader.shader;
-	artwork.slots[2].shader = artworkShader.shader;
-	artwork.slots[3].shader = artworkShader.shader;
+	// Slot Artwork Shader
+	artworkShader <- RoundCorners(config.artwork_radius, config.artwork[0].width, config.artwork[0].height);
+		artwork.slots[0].shader = artworkShader.shader;
+		artwork.slots[1].shader = artworkShader.shader;
+		artwork.slots[2].shader = artworkShader.shader;
+		artwork.slots[3].shader = artworkShader.shader;
+}
 
 // --------------------
 // Sounds
