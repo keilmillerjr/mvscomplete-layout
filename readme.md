@@ -22,8 +22,9 @@ You may need to change file paths as necessary if your differs.
 ## Install Files
 
 1. Copy layout files to ```$HOME/Apps/AttractModeFE/layouts/mvscomplete/```
-2. The [Helpers module](https://github.com/keilmillerjr/helpers-module) is **REQUIRED** for you to install. The layout will not work correctly without it.
-3. The [Shuffle module](https://github.com/keilmillerjr/shuffle-module) is **REQUIRED** for you to install. The layout will not work correctly without it.
+2. Copy the contents of ```snap/``` to your snap artwork folder. You may copy and rename these files to match your displays. They will be used as default for missing artwork.
+3. The [Helpers module](https://github.com/keilmillerjr/helpers-module) is **REQUIRED** for you to install. The layout will not work correctly without it.
+4. The [Shuffle module](https://github.com/keilmillerjr/shuffle-module) is **REQUIRED** for you to install. The layout will not work correctly without it.
 
 ## Optional Files
 
@@ -222,8 +223,8 @@ Driver specific artwork and roms can be extracted from full sets using [MAME Sof
 
 Included are some boot videos if you choose to use the Intro feature of Attract Mode. You can access this feature from the config menu (tab).
 
-* neo boot.mp4 for original neo geo boot
-* snk boot.mp4 for new snk boot
+* ```boot/neogeo.mp4``` for original neo geo boot
+* ```boot/snk.mp4``` for new snk boot
 
 ## Credit
 
