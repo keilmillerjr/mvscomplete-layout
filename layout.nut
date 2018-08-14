@@ -17,46 +17,46 @@ class UserConfig {
 		options="Yes, No",
 		order=1 />
 	enableSnapShader="No";
-	
+
 	</ label="CRT Shader Resolution",
 		help="Select CRT resolution.",
 		options="640x480, 320x240",
 		order=2 />
 	shaderResolution="320x240";
-	
+
 	</ label="Hide Brackets in Game Title",
 		help="Hide brackets in game title.",
 		options="Yes, No",
 		order=3 />
 	hideBrackets="Yes";
-	
+
 	</ label="Marquee Color",
 		help="Color for marquee background.",
 		options="Black, Red",
 		order=4 />
 	marqueeColor="Black";
-	
+
 	</ label="Marquee Opacity",
 		help="Percentage of opacity for marquee background.",
 		order=5 />
 	marqueeOpacity="85";
-	
+
 	</ label="Slot Artwork Type",
 		help="Type of slot artwork to display.",
 		order=6 />
-	artworkType="marquee";
-	
+	artworkType="flyer";
+
 	</ label="Slot Artwork Shade",
 		help="Percentage of shade for non selected slot artwork.",
 		order=7 />
 	artworkShade="50";
-	
+
 	</ label="Favorite Image",
 		help="Select which image to show for favorites.",
 		options="Star, Heart",
 		order=8 />
 	favoriteImage="Star";
-	
+
 	</ label="Enable SoundFx",
 		help="Enable SoundFx.",
 		options="Yes, No",
@@ -92,7 +92,7 @@ function filterString() {
 // --------------------
 local snap = FadeArt("snap", -1, -1, 1, 1);
 	setProps(snap, config.snap);
-	
+
 local marquee = fe.add_image("white.png", -1, -1, 1, 1);
 	setProps(marquee, config.marquee);
 	if (user_config["marqueeColor"] == "Red") setProps(marquee, config.marqueeRed);
@@ -127,10 +127,10 @@ local artwork = ShuffleArtwork(4, "artwork", user_config.artworkType, false, con
 
 class ShuffleFavorite extends Shuffle {
 	config = null;
-	
+
 	constructor(pm="image", r=true, pt=::fe) {
 		base.constructor(4, "image", pm, r, pt);
-		
+
 		config = {
 			frame = 0,
 			time = 1920,
@@ -144,16 +144,16 @@ class ShuffleFavorite extends Shuffle {
 		for (local i=0; i<slots.len(); i++) {
 			animation.add(SpriteAnimation(slots[i], config));
 		}
-		
+
 		fe.add_transition_callback(this, "status");
 	}
-	
+
 	function status(ttype, var, ttime) {
 		for (local i=0; i<slots.len(); i++) {
 			fe.game_info(Info.Favourite, slots[i].index_offset) == "1" ? slots[i].visible = true : slots[i].visible = false;
 		}
 	}
-	
+
 	function select(slot) {
 		shadeObject(slot, 100);
 	}
@@ -173,7 +173,7 @@ local entry = Shuffle(4, "text", "[ListEntry]", false, container);
 	setProps(entry.slots[1], config.entry[1]);
 	setProps(entry.slots[2], config.entry[2]);
 	setProps(entry.slots[3], config.entry[3]);
-	
+
 // --------------------
 // Enable Shaders
 // --------------------
@@ -223,7 +223,7 @@ if (toBool(user_config.enableSoundFx)) {
 		}
 		return false;
 	}
-	
+
 	fe.add_transition_callback("soundFxTransitions");
 	function soundFxTransitions(ttype, var, ttime) {
 		switch(ttype) {
