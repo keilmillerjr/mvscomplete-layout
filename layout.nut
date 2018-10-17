@@ -1,6 +1,7 @@
 // --------------------
 // Load Modules
 // --------------------
+
 fe.load_module("helpers");
 fe.load_module("shuffle");
 fe.load_module("shader");
@@ -11,6 +12,7 @@ fe.load_module("animate");
 // --------------------
 // Layout User Options
 // --------------------
+
 class UserConfig {
 	</ label="Enable CRT Shader on Background",
 		help="Snap and Artwork is simulated to look like it is being displayed on a crt.",
@@ -68,28 +70,43 @@ local user_config = fe.get_config();
 // --------------------
 // Config
 // --------------------
+
 fe.do_nut("config.nut");
 
 // --------------------
 // Magic Functions
 // --------------------
+
 function displayString() {
-	return fe.displays[fe.list.display_index].name.toupper();
+	try {
+		return fe.displays[fe.list.display_index].name.toupper();
+	}
+	catch (e) {
+		// error is because fe.list.display_index == -1 when display menu is shown
+		return "";
+	}
 }
 
-function titleString(index_offset = 0) {
-	local s = fe.game_info(Info.Title, index_offset).toupper();
+function titleString() {
+	local s = fe.game_info(Info.Title).toupper();
 	if (toBool(user_config.hideBrackets)) s = split(s, "(/[");
 	return rstrip(s[0]);
 }
 
 function filterString() {
-	return fe.filters[fe.list.filter_index].name.toupper();
+	try {
+		return fe.filters[fe.list.filter_index].name.toupper();
+	}
+	catch (e) {
+		// error is because fe.list.display_index == -1 when display menu is shown
+		return "";
+	}
 }
 
 // --------------------
 // Layout
 // --------------------
+
 local snap = FadeArt("snap", -1, -1, 1, 1);
 	setProps(snap, config.snap);
 
@@ -177,6 +194,7 @@ local entry = Shuffle(4, "text", "[ListEntry]", false, container);
 // --------------------
 // Enable Shaders
 // --------------------
+
 if (fe.load_module("shader")) {
 	// Snap Shader
 	if (toBool(user_config.enableSnapShader)) {
