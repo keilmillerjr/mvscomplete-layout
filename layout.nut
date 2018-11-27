@@ -110,7 +110,7 @@ function filterString() {
 local snap = FadeArt("snap", -1, -1, 1, 1);
 	setProps(snap, config.snap);
 
-local marquee = fe.add_image("white.png", -1, -1, 1, 1);
+local marquee = fe.add_image(paths.pixel, -1, -1, 1, 1);
 	setProps(marquee, config.marquee);
 	if (user_config["marqueeColor"] == "Red") setProps(marquee, config.marqueeRed);
 	marquee.alpha = per(user_config["marqueeOpacity"].tointeger(), 255);
