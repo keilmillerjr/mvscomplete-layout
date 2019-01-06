@@ -3,69 +3,10 @@
 // --------------------
 
 fe.load_module("helpers");
-fe.load_module("shuffle");
-fe.load_module("shader");
-
 fe.load_module("fade");
-fe.load_module("animate");
-
-// --------------------
-// Layout User Options
-// --------------------
-
-class UserConfig {
-	</ label="Enable CRT Shader on Background",
-		help="Snap and Artwork is simulated to look like it is being displayed on a crt.",
-		options="Yes, No",
-		order=1 />
-	enableSnapShader="No";
-
-	</ label="CRT Shader Resolution",
-		help="Select CRT resolution.",
-		options="640x480, 320x240",
-		order=2 />
-	shaderResolution="320x240";
-
-	</ label="Hide Brackets in Game Title",
-		help="Hide brackets in game title.",
-		options="Yes, No",
-		order=3 />
-	hideBrackets="Yes";
-
-	</ label="Marquee Color",
-		help="Color for marquee background.",
-		options="Black, Red",
-		order=4 />
-	marqueeColor="Black";
-
-	</ label="Marquee Opacity",
-		help="Percentage of opacity for marquee background.",
-		order=5 />
-	marqueeOpacity="85";
-
-	</ label="Slot Artwork Type",
-		help="Type of slot artwork to display.",
-		order=6 />
-	artworkType="flyer";
-
-	</ label="Slot Artwork Shade",
-		help="Percentage of shade for non selected slot artwork.",
-		order=7 />
-	artworkShade="50";
-
-	</ label="Favorite Image",
-		help="Select which image to show for favorites.",
-		options="Star, Heart",
-		order=8 />
-	favoriteImage="Star";
-
-	</ label="Enable SoundFx",
-		help="Enable SoundFx.",
-		options="Yes, No",
-		order=9 />
-	enableSoundFx="Yes";
-}
-local user_config = fe.get_config();
+fe.load_module("shuffle");
+fe.load_module("preserve-art");
+fe.load_module("shader");
 
 // --------------------
 // Config
@@ -74,32 +15,102 @@ local user_config = fe.get_config();
 fe.do_nut("config.nut");
 
 // --------------------
-// Magic Functions
+// Layout User Options
 // --------------------
 
-function displayString() {
-	try {
-		return fe.displays[fe.list.display_index].name.toupper();
-	}
-	catch (e) {
-		// error is because fe.list.display_index == -1 when display menu is shown
-		return "";
-	}
+local userConfig = {
+	order = 0,
+	prefix = "---------- ",
+	postfix = " ----------",
 }
 
-function titleString() {
-	local s = fe.game_info(Info.Title).toupper();
-	if (toBool(user_config.hideBrackets)) s = split(s, "(/[");
-	return rstrip(s[0]);
+class UserConfig {
+	</ label=userConfig.prefix + "GENERAL" + userConfig.postfix,
+		help="mvscomplete Layout",
+		order=userConfig.order++ />
+	general="";
+
+		</ label="Format Game Title",
+			help="Remove parenthesis, slashes, brackets and following text from game title.",
+			options="Yes, No",
+			order=userConfig.order++ />
+		gameTitle="Yes";
+
+		</ label="Favorites Color",
+			help="Favorites logo and title color, defined by separated values for Red, Green, Blue. Default is neo-geo red 231, 45, 53.",
+			order=userConfig.order++ />
+		favoritesColor="235, 45, 53";
+
+		</ label="Mini Marquee - Missing Art",
+			help="When a snap image is not provided, one of these default mini marquees will be used.",
+			options="Cabinet, Logo",
+			order=userConfig.order++ />
+		miniArt="Cabinet";
+
+		</ label="Slot Artwork Shade",
+			help="Percentage of shade for non selected slot artwork.",
+			order=userConfig.order++ />
+		artworkShade="40";
+
+		</ label="Marquee Opacity",
+			help="Percentage of opacity for marquee background.",
+			order=userConfig.order++ />
+		marqueeOpacity="75";
+
+	</ label=userConfig.prefix + "AUDIO" + userConfig.postfix,
+		order=userConfig.order++ />
+	audio="";
+
+		</ label="Navigation Audio",
+			help="Audio effects when navigating the layout.",
+			options="On, Off",
+			order=userConfig.order++ />
+		navigationAudio="On";
+
+		</ label="Video Snap Audio",
+			help="Audio when video snap is playing.",
+			options="On, Off",
+			order=userConfig.order++ />
+		videoAudio="On";
+
+	</ label=userConfig.prefix + "SHADERS" + userConfig.postfix,
+		order=userConfig.order++ />
+	shaders="";
+
+		</ label="CRT Shader",
+			help="CRT Shader applied.",
+			options="Disabled, Crt Cgwg, Crt Lottes",
+			order=userConfig.order++ />
+		crtShader="Disabled";
+
+		</ label="Enable Bloom Shader",
+			help="Bloom applied with CRT shaders.",
+			options="Yes, No",
+			order=userConfig.order++ />
+		bloom="No";
+}
+local userConfig = fe.get_config();
+
+// --------------------
+// Functions
+// --------------------
+
+function magicGameTitle() {
+	if (toBool(userConfig.gameTitle) && (fe.game_info(Info.Title) != "")) {
+		local s = split(fe.game_info(Info.Title), "(/[");
+		return rstrip(s[0]);
+	}
+	else return fe.game_info(Info.Title);
 }
 
-function filterString() {
+function setFavoritesColor(obj) {
+	local s = split(userConfig["favoritesColor"], " ,./");
 	try {
-		return fe.filters[fe.list.filter_index].name.toupper();
+		obj.set_rgb(s[0].tointeger(), s[1].tointeger(), s[2].tointeger());
 	}
-	catch (e) {
-		// error is because fe.list.display_index == -1 when display menu is shown
-		return "";
+	catch(e) {
+		printL("mvscomplete: invalid favorites color, using default");
+		obj.set_rgb(235, 45, 54);
 	}
 }
 
@@ -107,67 +118,44 @@ function filterString() {
 // Layout
 // --------------------
 
-local snap = FadeArt("snap", -1, -1, 1, 1);
-	setProps(snap, config.snap);
+// ---------- Container
 
-local marquee = fe.add_image(pixelPath, -1, -1, 1, 1);
-	setProps(marquee, config.marquee);
-	if (user_config["marqueeColor"] == "Red") setProps(marquee, config.marqueeRed);
-	marquee.alpha = per(user_config["marqueeOpacity"].tointeger(), 255);
+local containerParent = fe.add_surface(config.containerParent.width, config.containerParent.height);
+	setProps(containerParent, config.containerParent);
 
-local container = fe.add_surface(config.container.width, config.container.height);
+local container = containerParent.add_surface(config.container.width, config.container.height);
 	setProps(container, config.container);
 
-local display = container.add_text("[!displayString]", -1, -1, 1, 1);
-	setProps(display, config.display);
+// ---------- Video
 
-local title = container.add_text("[!titleString]", -1, -1, 1, 1);
-	setProps(title, config.title);
+class FadeVideo extends FadeArt {
+	constructor(label, x, y, width, height, audio=true, target=::fe) {
+		base.constructor(label, x, y, width, height, target);
 
-local filter = container.add_text("[!filterString]", -1, -1, 1, 1);
-	setProps(filter, config.filter);
+		if (audio == false) {
+			_back.video_flags = Vid.NoAudio;
+			_front.video_flags = Vid.NoAudio;
+		}
+	}
+}
+
+local video = FadeVideo("snap", -1, -1, 1, 1, toBool(userConfig["videoAudio"]), container);
+	setProps(video, config.video);
+
+// ---------- Marquee
+
+local marquee = container.add_image(pixelPath, -1, -1, 1, 1);
+	setProps(marquee, config.marquee);
+	marquee.alpha = per(userConfig["marqueeOpacity"].tointeger(), 255);
+
+// ---------- Artwork
 
 class ShuffleArtwork extends Shuffle {
-	function select(slot) {
-		shadeObject(slot, 100);
-	}
+	function update() {
+		base.update();
 
-	function deselect(slot) {
-		shadeObject(slot, user_config.artworkShade.tointeger());
-	}
-}
-local artwork = ShuffleArtwork(4, "artwork", user_config.artworkType, false, container);
-	setProps(artwork.slots[0], config.artwork[0]);
-	setProps(artwork.slots[1], config.artwork[1]);
-	setProps(artwork.slots[2], config.artwork[2]);
-	setProps(artwork.slots[3], config.artwork[3]);
-
-class ShuffleFavorite extends Shuffle {
-	config = null;
-
-	constructor(pm="image", r=true, pt=::fe) {
-		base.constructor(4, "image", pm, r, pt);
-
-		config = {
-			frame = 0,
-			time = 1920,
-			delay = 0,
-			wait = false,
-			loop = true,
-			width = 50,
-			height = 50,
-			orientation = "horizontal",
-		}
 		for (local i=0; i<slots.len(); i++) {
-			animation.add(SpriteAnimation(slots[i], config));
-		}
-
-		fe.add_transition_callback(this, "status");
-	}
-
-	function status(ttype, var, ttime) {
-		for (local i=0; i<slots.len(); i++) {
-			fe.game_info(Info.Favourite, slots[i].index_offset) == "1" ? slots[i].visible = true : slots[i].visible = false;
+			if (slots[i].art.file_name.len() == 0) slots[i].art.file_name = "mini" + userConfig.miniArt + ".png";
 		}
 	}
 
@@ -176,39 +164,157 @@ class ShuffleFavorite extends Shuffle {
 	}
 
 	function deselect(slot) {
-		shadeObject(slot, user_config.artworkShade.tointeger());
+		shadeObject(slot, userConfig.artworkShade.tointeger());
 	}
 }
-local favorite = ShuffleFavorite(user_config.favoriteImage.tolower() + ".png", false, container);
-	setProps(favorite.slots[0], config.favorite[0]);
-	setProps(favorite.slots[1], config.favorite[1]);
-	setProps(favorite.slots[2], config.favorite[2]);
-	setProps(favorite.slots[3], config.favorite[3]);
 
-local entry = Shuffle(4, "text", "[ListEntry]", false, container);
-	setProps(entry.slots[0], config.entry[0]);
-	setProps(entry.slots[1], config.entry[1]);
-	setProps(entry.slots[2], config.entry[2]);
-	setProps(entry.slots[3], config.entry[3]);
+local artwork = [];
+	artwork.push(PreserveArt("snap", config.artwork[0].x, config.artwork[0].y, config.artwork[0].width, config.artwork[0].height, container));
+	artwork.push(PreserveArt("snap", config.artwork[1].x, config.artwork[1].y, config.artwork[1].width, config.artwork[1].height, container));
+	artwork.push(PreserveArt("snap", config.artwork[2].x, config.artwork[2].y, config.artwork[2].width, config.artwork[2].height, container));
+	artwork.push(PreserveArt("snap", config.artwork[3].x, config.artwork[3].y, config.artwork[3].width, config.artwork[3].height, container));
 
-// --------------------
-// Enable Shaders
-// --------------------
-
-if (fe.load_module("shader")) {
-	// Snap Shader
-	if (toBool(user_config.enableSnapShader)) {
-		snapShader <- CrtLottes(splitRes(user_config.shaderResolution, "width"), splitRes(user_config.shaderResolution, "height"));
-		snap.shader = snapShader.shader;
+	for (local i=0; i<artwork.len(); i++) {
+		artwork[i].set_fit_or_fill("fill");
+		artwork[i].set_anchor(::Anchor.Center);
+		artwork[i].art.video_flags = Vid.ImagesOnly;
 	}
 
-	// Slot Artwork Shader
-	artworkShader <- RoundCorners(config.artwork_radius, config.artwork[0].width, config.artwork[0].height);
-		artwork.slots[0].shader = artworkShader.shader;
-		artwork.slots[1].shader = artworkShader.shader;
-		artwork.slots[2].shader = artworkShader.shader;
-		artwork.slots[3].shader = artworkShader.shader;
+local shuffleArtwork = ShuffleArtwork(artwork, "preserveArt", false);
+
+// ---------- Logos
+
+class ShuffleLogos extends Shuffle {
+	function select(slot) {
+		shadeObject(slot, 100);
+	}
+
+	function deselect(slot) {
+		shadeObject(slot, userConfig.artworkShade.tointeger());
+	}
 }
+
+local logos = [];
+	logos.push(PreserveArt("wheel", config.artwork[0].x, config.artwork[0].y, config.artwork[0].width, config.artwork[0].height, container));
+	logos.push(PreserveArt("wheel", config.artwork[1].x, config.artwork[1].y, config.artwork[1].width, config.artwork[1].height, container));
+	logos.push(PreserveArt("wheel", config.artwork[2].x, config.artwork[2].y, config.artwork[2].width, config.artwork[2].height, container));
+	logos.push(PreserveArt("wheel", config.artwork[3].x, config.artwork[3].y, config.artwork[3].width, config.artwork[3].height, container));
+
+	for (local i=0; i<logos.len(); i++) {
+		logos[i].set_fit_or_fill("fit");
+		logos[i].set_anchor(::Anchor.Top);
+	}
+
+local shuffleLogos = ShuffleLogos(logos, "preserveArt", false);
+
+// ---------- Favorites
+
+class ShuffleFavorites extends Shuffle {
+	function update() {
+		base.update();
+
+		for (local i=0; i<slots.len(); i++) {
+			fe.game_info(Info.Favourite, slots[i].art.index_offset) == "1" ? slots[i].visible = true : slots[i].visible = false;
+		}
+	}
+
+	function select(slot) {
+		shadeObject(slot, 100);
+	}
+
+	function deselect(slot) {
+		shadeObject(slot, userConfig.artworkShade.tointeger());
+	}
+}
+
+local favorites = [];
+	favorites.push(PreserveImage("star.png", config.artwork[0].x, config.artwork[0].y + (config.artwork[0].height*0.75), config.artwork[0].width, config.artwork[0].height/4, container));
+	favorites.push(PreserveImage("star.png", config.artwork[1].x, config.artwork[1].y + (config.artwork[0].height*0.75), config.artwork[1].width, config.artwork[1].height/4, container));
+	favorites.push(PreserveImage("star.png", config.artwork[2].x, config.artwork[2].y + (config.artwork[0].height*0.75), config.artwork[2].width, config.artwork[2].height/4, container));
+	favorites.push(PreserveImage("star.png", config.artwork[3].x, config.artwork[3].y + (config.artwork[0].height*0.75), config.artwork[3].width, config.artwork[3].height/4, container));
+
+	for (local i=0; i<favorites.len(); i++) {
+		setFavoritesColor(favorites[i].art);
+		favorites[i].set_fit_or_fill("fit");
+		favorites[i].set_anchor(::Anchor.Left);
+	}
+
+local shuffleFavorites = ShuffleFavorites(favorites, "preserveImage", false);
+
+// ---------- Game Title
+
+local gameTitleT = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
+	setProps(gameTitleT, config.gameTitle);
+	gameTitleT.set_rgb(0, 0, 0);
+	gameTitleT.x = config.gameTitle.x - (overscan*0.25);
+
+local gameTitleL = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
+	setProps(gameTitleL, config.gameTitle);
+	gameTitleL.set_rgb(0, 0, 0);
+	gameTitleL.y = config.gameTitle.y - (overscan*0.25);
+
+local gameTitleB = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
+	setProps(gameTitleB, config.gameTitle);
+	gameTitleB.set_rgb(0, 0, 0);
+	gameTitleB.x = config.gameTitle.x + (overscan*0.25);
+
+local gameTitleR = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
+	setProps(gameTitleR, config.gameTitle);
+	gameTitleR.set_rgb(0, 0, 0);
+	gameTitleR.y = config.gameTitle.y + (overscan*0.25);
+
+local gameTitleTL = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
+	setProps(gameTitleTL, config.gameTitle);
+	gameTitleTL.set_rgb(0, 0, 0);
+	gameTitleTL.set_pos(config.gameTitle.x-(overscan*0.25), config.gameTitle.y-(overscan*0.25));
+
+local gameTitleBL = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
+	setProps(gameTitleBL, config.gameTitle);
+	gameTitleBL.set_rgb(0, 0, 0);
+	gameTitleBL.set_pos(config.gameTitle.x+(overscan*0.25), config.gameTitle.y-(overscan*0.25));
+
+local gameTitleBR = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
+	setProps(gameTitleBR, config.gameTitle);
+	gameTitleBR.set_rgb(0, 0, 0);
+	gameTitleBR.set_pos(config.gameTitle.x+(overscan*0.25), config.gameTitle.y+(overscan*0.25));
+
+local gameTitleTR = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
+	setProps(gameTitleTR, config.gameTitle);
+	gameTitleTR.set_rgb(0, 0, 0);
+	gameTitleTR.set_pos(config.gameTitle.x-(overscan*0.25), config.gameTitle.y+(overscan*0.25));
+
+local gameTitle = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
+	setProps(gameTitle, config.gameTitle);
+
+// ---------- Game Info
+
+local gameInfoBR = container.add_text("[Year] [Manufacturer]", -1, -1, 1, 1);
+	setProps(gameInfoBR, config.gameInfo);
+	gameInfoBR.set_rgb(0, 0, 0);
+	gameInfoBR.set_pos(config.gameInfo.x+(overscan*0.25), config.gameInfo.y+(overscan*0.25));
+
+local gameInfo = container.add_text("[Year] [Manufacturer]", -1, -1, 1, 1);
+	setProps(gameInfo, config.gameInfo);
+
+// ---------- Display Name
+
+local displayNameBR = container.add_text("[DisplayName]", -1, -1, 1, 1);
+	setProps(displayNameBR, config.displayName);
+	displayNameBR.set_rgb(0, 0, 0);
+	displayNameBR.set_pos(config.displayName.x+(overscan*0.25), config.displayName.y+(overscan*0.25));
+
+local displayName = container.add_text("[DisplayName]", -1, -1, 1, 1);
+	setProps(displayName, config.displayName);
+
+// ---------- Filter Name
+
+local filterNameBR = container.add_text("[FilterName]", -1, -1, 1, 1);
+	setProps(filterNameBR, config.filterName);
+	filterNameBR.set_rgb(0, 0, 0);
+	filterNameBR.set_pos(config.filterName.x+(overscan*0.25), config.filterName.y+(overscan*0.25));
+
+local filterName = container.add_text("[FilterName]", -1, -1, 1, 1);
+	setProps(filterName, config.filterName);
 
 // --------------------
 // Sounds
@@ -222,37 +328,55 @@ local select = fe.add_sound("select.mp3"); // duration via terminal $ afinfo sel
 	select.loop = false;
 	select.playing = false;
 
-if (toBool(user_config.enableSoundFx)) {
-	fe.add_signal_handler("soundFxSignals")
-	function soundFxSignals(signal_str) {
-		switch(signal_str) {
-			case "prev_game":
-			case "next_game":
-			case "prev_filter":
-			case "next_filter":
-			case "add_favourite":
-			case "prev_letter":
-			case "next_letter":
+if (toBool(userConfig["navigationAudio"])) {
+	fe.add_transition_callback("navigationAudio");
+	function navigationAudio(ttype, var, ttime) {
+		switch(ttype) {
+			case Transition.ToNewSelection:
+			case Transition.ToNewList:
+			case Transition.ChangedTag:
 				click.playing = true;
 				break;
-			case "select":
-				select.playing = true;
-				break;
-		}
-		return false;
-	}
-
-	fe.add_transition_callback("soundFxTransitions");
-	function soundFxTransitions(ttype, var, ttime) {
-		switch(ttype) {
 			case Transition.ToGame:
-				if (ttime < 1620) {
-					return true;
-				}
+				if (ttime == 0) select.playing = true;
+				if (ttime < 2063) return true;
 				break;
 		}
 		return false;
 	}
+}
+
+// --------------------
+// Shaders
+// --------------------
+
+local shaderCrtLottes = CrtLottes();
+local shaderCrtCgwg = CrtCgwg();
+local shaderBloom = Bloom();
+
+switch (userConfig["crtShader"]){
+	case "Crt Lottes":
+		if (toBool(userConfig["bloom"])) containerParent.shader = shaderBloom.shader;
+		container.shader = shaderCrtLottes.shader;
+		break;
+	case "Crt Cgwg":
+		if (toBool(userConfig["bloom"])) containerParent.shader = shaderBloom.shader;
+		container.shader = shaderCrtCgwg.shader;
+		break;
+	default:
+		containerParent.shader = fe.add_shader(Shader.Empty);
+		container.shader = fe.add_shader(Shader.Empty);
+		break;
+}
+
+// --------------------
+// Transitions
+// --------------------
+
+fe.add_transition_callback("favorites");
+function favorites(ttype, var, ttime) {
+	fe.game_info(Info.Favourite) == "1" ? setFavoritesColor(gameTitle) : gameTitle.set_rgb(255, 255, 255);
+	return false;
 }
 
 // --------------------
@@ -266,15 +390,15 @@ fe.add_transition_callback("slotState");
 function slotState(ttype, var, ttime) {
 	switch(ttype) {
 		case Transition.StartLayout:
-			artwork.selected = fe.nv.mvscomplete.selectedSlot;
-			artwork.update();
-			favorite.selected = fe.nv.mvscomplete.selectedSlot;
-			favorite.update();
-			entry.selected = fe.nv.mvscomplete.selectedSlot;
-			entry.update();
+			shuffleArtwork.selected = fe.nv.mvscomplete.selectedSlot;
+			shuffleArtwork.update();
+			shuffleLogos.selected = fe.nv.mvscomplete.selectedSlot;
+			shuffleLogos.update();
+			shuffleFavorites.selected = fe.nv.mvscomplete.selectedSlot;
+			shuffleFavorites.update();
 			break;
 		case Transition.EndLayout:
-			fe.nv.mvscomplete.selectedSlot = artwork.selected;
+			fe.nv.mvscomplete.selectedSlot = shuffleArtwork.selected;
 			break;
 	}
 	return false;
