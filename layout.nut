@@ -103,6 +103,8 @@ local overscan = per(2, flh);
 
 local config = {};
 
+// ---------- Main Objects
+
 config.containerParent <- {
 	x = toBool(userConfig["force"]) ? (flw - matchAspect(4, 3, "height", flh)) / 2 : 0,
 	y = 0,
@@ -124,13 +126,15 @@ config.video <- {
 	height = config.container.height,
 };
 
+// ---------- Marquee
+
 config.marquee <- {
 	x = 0,
 	y = 0,
 	width = config.container.width,
 	height = per(40, config.container.height),
+	alpha = per(userConfig["marqueeOpacity"].tointeger(), 255),
 	rgb = [0, 0, 0],
-	alpha = 75,
 };
 
 config.artwork <- [];
@@ -163,7 +167,7 @@ config.artwork.push({
 	height = config.artwork[0].height,
 });
 
-config.artworkRadius <- overscan / 2;
+// ---------- Text Objects
 
 config.gameTitle <- {
 	x = overscan,
@@ -171,6 +175,11 @@ config.gameTitle <- {
 	width = per(62.5, config.container.width - (overscan*3)),
 	height = per(6, config.container.height - (overscan*2)),
 	align = Align.Left,
+	rgb = [255, 255, 255],
+}
+
+config.gameTitleOutline <- {
+	rgb = [0, 0, 0],
 }
 
 config.gameInfo <- {
@@ -179,6 +188,11 @@ config.gameInfo <- {
 	width = per(62.5, config.container.width - (overscan*3)),
 	height = per(6, config.container.height - (overscan*2)),
 	align = Align.Left,
+	rgb = [255, 255, 255],
+}
+
+config.gameInfoShadow <- {
+	rgb = [0, 0, 0],
 }
 
 config.displayName <- {
@@ -187,6 +201,11 @@ config.displayName <- {
 	width = per(37.5, config.container.width - (overscan*3)),
 	height = per(6, config.container.height - (overscan*2)),
 	align = Align.Right,
+	rgb = [255, 255, 255],
+}
+
+config.displayNameShadow <- {
+	rgb = [0, 0, 0],
 }
 
 config.filterName <- {
@@ -195,6 +214,11 @@ config.filterName <- {
 	width = per(37.5, config.container.width - (overscan*3)),
 	height = per(6, config.container.height - (overscan*2)),
 	align = Align.Right,
+	rgb = [255, 255, 255],
+}
+
+config.filterNameShadow <- {
+	rgb = [0, 0, 0],
 }
 
 // --------------------
@@ -217,6 +241,67 @@ function setFavoritesColor(obj) {
 	catch(e) {
 		printL("mvscomplete: invalid favorites color, using default");
 		obj.set_rgb(235, 45, 54);
+	}
+}
+
+function textOutline(obj, offset) {
+	try {
+		obj[0].x = obj[8].x - offset; // Top
+		obj[1].y = obj[8].y - offset; // Left
+		obj[2].x = obj[8].x + offset; // Bottom
+		obj[3].y = obj[8].y + offset; // Right
+		obj[4].set_pos(obj[8].x - offset, obj[8].y - offset); // Top Left
+		obj[5].set_pos(obj[8].x + offset, obj[8].y - offset); // Bottom Left
+		obj[6].set_pos(obj[8].x + offset, obj[8].y + offset); // Bottom Right
+		obj[7].set_pos(obj[8].x - offset, obj[8].y + offset); // Top Right
+	}
+	catch(e) {
+		printL("mvscomplete: invalid objects or offset passed to textOutline function");
+	}
+}
+
+function textShadow(obj, offset, direction) {
+	try {
+		switch (direction) {
+			case "top":
+			case "t":
+				obj[0].x = obj[1].x - offset;
+				break;
+			case "left":
+			case "l":
+				obj[0].y = obj[1].y - offset;
+				break;
+			case "bottom":
+			case "b":
+				obj[0].x = obj[1].x + offset;
+				break;
+			case "right":
+			case "r":
+				obj[0].y = obj[1].y + offset;
+				break;
+			case "top-left":
+			case "tl":
+				obj[0].set_pos(obj[1].x - offset, obj[1].y - offset);
+				break;
+			case "bottom-left":
+			case "bl":
+				obj[0].set_pos(obj[1].x + offset, obj[1].y - offset);
+				break;
+			case "bottom-right":
+			case "br":
+				obj[0].set_pos(obj[1].x + offset, obj[1].y + offset);
+				break;
+			case "top-right":
+			case "tr":
+				obj[0].set_pos(obj[1].x - offset, obj[1].y + offset);
+				break;
+			default:
+				printL("mvscomplete: invalid direction passed to textShadow function");
+				break;
+		}
+	}
+	catch(e) {
+		printL("mvscomplete: invalid objects or offset passed to textShadow function");
 	}
 }
 
@@ -252,7 +337,6 @@ local video = FadeVideo("snap", -1, -1, 1, 1, toBool(userConfig["videoAudio"]), 
 
 local marquee = container.add_image(pixelPath, -1, -1, 1, 1);
 	setProps(marquee, config.marquee);
-	marquee.alpha = per(userConfig["marqueeOpacity"].tointeger(), 255);
 
 // ---------- Artwork
 
@@ -275,15 +359,12 @@ class ShuffleArtwork extends Shuffle {
 }
 
 local artwork = [];
-	artwork.push(PreserveArt("snap", config.artwork[0].x, config.artwork[0].y, config.artwork[0].width, config.artwork[0].height, container));
-	artwork.push(PreserveArt("snap", config.artwork[1].x, config.artwork[1].y, config.artwork[1].width, config.artwork[1].height, container));
-	artwork.push(PreserveArt("snap", config.artwork[2].x, config.artwork[2].y, config.artwork[2].width, config.artwork[2].height, container));
-	artwork.push(PreserveArt("snap", config.artwork[3].x, config.artwork[3].y, config.artwork[3].width, config.artwork[3].height, container));
-
-	for (local i=0; i<artwork.len(); i++) {
+	for (local i=0; i<4; i++) {
+		artwork.push(PreserveArt("snap", config.artwork[i].x, config.artwork[i].y, config.artwork[i].width, config.artwork[i].height, container));
 		artwork[i].set_fit_or_fill("fill");
 		artwork[i].set_anchor(::Anchor.Center);
 		artwork[i].art.video_flags = Vid.ImagesOnly;
+		artwork[i].mipmap = true;
 	}
 
 local shuffleArtwork = ShuffleArtwork(artwork, "preserveArt", false);
@@ -301,14 +382,11 @@ class ShuffleLogos extends Shuffle {
 }
 
 local logos = [];
-	logos.push(PreserveArt("wheel", config.artwork[0].x, config.artwork[0].y, config.artwork[0].width, config.artwork[0].height, container));
-	logos.push(PreserveArt("wheel", config.artwork[1].x, config.artwork[1].y, config.artwork[1].width, config.artwork[1].height, container));
-	logos.push(PreserveArt("wheel", config.artwork[2].x, config.artwork[2].y, config.artwork[2].width, config.artwork[2].height, container));
-	logos.push(PreserveArt("wheel", config.artwork[3].x, config.artwork[3].y, config.artwork[3].width, config.artwork[3].height, container));
-
-	for (local i=0; i<logos.len(); i++) {
+	for (local i=0; i<4; i++) {
+		logos.push(PreserveArt("wheel", config.artwork[i].x, config.artwork[i].y, config.artwork[i].width, config.artwork[i].height, container));
 		logos[i].set_fit_or_fill("fit");
 		logos[i].set_anchor(::Anchor.Top);
+		artwork[i].mipmap = true;
 	}
 
 local shuffleLogos = ShuffleLogos(logos, "preserveArt", false);
@@ -334,93 +412,58 @@ class ShuffleFavorites extends Shuffle {
 }
 
 local favorites = [];
-	favorites.push(PreserveImage("star.png", config.artwork[0].x, config.artwork[0].y + (config.artwork[0].height*0.75), config.artwork[0].width, config.artwork[0].height/4, container));
-	favorites.push(PreserveImage("star.png", config.artwork[1].x, config.artwork[1].y + (config.artwork[0].height*0.75), config.artwork[1].width, config.artwork[1].height/4, container));
-	favorites.push(PreserveImage("star.png", config.artwork[2].x, config.artwork[2].y + (config.artwork[0].height*0.75), config.artwork[2].width, config.artwork[2].height/4, container));
-	favorites.push(PreserveImage("star.png", config.artwork[3].x, config.artwork[3].y + (config.artwork[0].height*0.75), config.artwork[3].width, config.artwork[3].height/4, container));
-
-	for (local i=0; i<favorites.len(); i++) {
-		setFavoritesColor(favorites[i].art);
+	for (local i=0; i<4; i++) {
+		favorites.push(PreserveImage("star.png", config.artwork[i].x, config.artwork[i].y + (config.artwork[i].height*0.75), config.artwork[i].width, config.artwork[i].height/4, container));
 		favorites[i].set_fit_or_fill("fit");
 		favorites[i].set_anchor(::Anchor.Left);
+		setFavoritesColor(favorites[i].art);
 	}
 
 local shuffleFavorites = ShuffleFavorites(favorites, "preserveImage", false);
 
 // ---------- Game Title
 
-local gameTitleT = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
-	setProps(gameTitleT, config.gameTitle);
-	gameTitleT.set_rgb(0, 0, 0);
-	gameTitleT.x = config.gameTitle.x - (overscan*0.25);
+local gameTitle = [];
+	for (local i=0; i<9; i++) {
+		gameTitle.push(container.add_text("[!magicGameTitle]", -1, -1, 1, 1));
+		setProps(gameTitle[i], config.gameTitle);
 
-local gameTitleL = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
-	setProps(gameTitleL, config.gameTitle);
-	gameTitleL.set_rgb(0, 0, 0);
-	gameTitleL.y = config.gameTitle.y - (overscan*0.25);
-
-local gameTitleB = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
-	setProps(gameTitleB, config.gameTitle);
-	gameTitleB.set_rgb(0, 0, 0);
-	gameTitleB.x = config.gameTitle.x + (overscan*0.25);
-
-local gameTitleR = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
-	setProps(gameTitleR, config.gameTitle);
-	gameTitleR.set_rgb(0, 0, 0);
-	gameTitleR.y = config.gameTitle.y + (overscan*0.25);
-
-local gameTitleTL = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
-	setProps(gameTitleTL, config.gameTitle);
-	gameTitleTL.set_rgb(0, 0, 0);
-	gameTitleTL.set_pos(config.gameTitle.x-(overscan*0.25), config.gameTitle.y-(overscan*0.25));
-
-local gameTitleBL = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
-	setProps(gameTitleBL, config.gameTitle);
-	gameTitleBL.set_rgb(0, 0, 0);
-	gameTitleBL.set_pos(config.gameTitle.x+(overscan*0.25), config.gameTitle.y-(overscan*0.25));
-
-local gameTitleBR = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
-	setProps(gameTitleBR, config.gameTitle);
-	gameTitleBR.set_rgb(0, 0, 0);
-	gameTitleBR.set_pos(config.gameTitle.x+(overscan*0.25), config.gameTitle.y+(overscan*0.25));
-
-local gameTitleTR = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
-	setProps(gameTitleTR, config.gameTitle);
-	gameTitleTR.set_rgb(0, 0, 0);
-	gameTitleTR.set_pos(config.gameTitle.x-(overscan*0.25), config.gameTitle.y+(overscan*0.25));
-
-local gameTitle = container.add_text("[!magicGameTitle]", -1, -1, 1, 1);
-	setProps(gameTitle, config.gameTitle);
+		if (i<8) setProps(gameTitle[i], config.gameTitleOutline);
+	}
+	textOutline(gameTitle, overscan*0.25);
 
 // ---------- Game Info
 
-local gameInfoBR = container.add_text("[Year] [Manufacturer]", -1, -1, 1, 1);
-	setProps(gameInfoBR, config.gameInfo);
-	gameInfoBR.set_rgb(0, 0, 0);
-	gameInfoBR.set_pos(config.gameInfo.x+(overscan*0.25), config.gameInfo.y+(overscan*0.25));
+local gameInfo = [];
+	for (local i=0; i<2; i++) {
+		gameInfo.push(container.add_text("[Year] [Manufacturer]", -1, -1, 1, 1));
+		setProps(gameInfo[i], config.gameInfo);
 
-local gameInfo = container.add_text("[Year] [Manufacturer]", -1, -1, 1, 1);
-	setProps(gameInfo, config.gameInfo);
+		if (i<1) setProps(gameInfo[i], config.gameInfoShadow);
+	}
+	textShadow(gameInfo, overscan*0.25, "br");
 
 // ---------- Display Name
 
-local displayNameBR = container.add_text("[DisplayName]", -1, -1, 1, 1);
-	setProps(displayNameBR, config.displayName);
-	displayNameBR.set_rgb(0, 0, 0);
-	displayNameBR.set_pos(config.displayName.x+(overscan*0.25), config.displayName.y+(overscan*0.25));
+local displayName = [];
+	for (local i=0; i<2; i++) {
+		displayName.push(container.add_text("[DisplayName]", -1, -1, 1, 1));
+		setProps(displayName[i], config.displayName);
 
-local displayName = container.add_text("[DisplayName]", -1, -1, 1, 1);
-	setProps(displayName, config.displayName);
+		if (i<1) setProps(displayName[i], config.displayNameShadow);
+	}
+	textShadow(displayName, overscan*0.25, "br");
 
 // ---------- Filter Name
 
-local filterNameBR = container.add_text("[FilterName]", -1, -1, 1, 1);
-	setProps(filterNameBR, config.filterName);
-	filterNameBR.set_rgb(0, 0, 0);
-	filterNameBR.set_pos(config.filterName.x+(overscan*0.25), config.filterName.y+(overscan*0.25));
+local filterName = [];
+	for (local i=0; i<2; i++) {
+		filterName.push(container.add_text("[FilterName]", -1, -1, 1, 1));
+		setProps(filterName[i], config.filterName);
 
-local filterName = container.add_text("[FilterName]", -1, -1, 1, 1);
-	setProps(filterName, config.filterName);
+		if (i<1) setProps(filterName[i], config.filterNameShadow);
+	}
+	textShadow(filterName, overscan*0.25, "br");
 
 // --------------------
 // Sounds
@@ -481,7 +524,7 @@ switch (userConfig["crtShader"]){
 
 fe.add_transition_callback("favorites");
 function favorites(ttype, var, ttime) {
-	fe.game_info(Info.Favourite) == "1" ? setFavoritesColor(gameTitle) : gameTitle.set_rgb(255, 255, 255);
+	fe.game_info(Info.Favourite) == "1" ? setFavoritesColor(gameTitle[8]) : gameTitle[8].set_rgb(config.gameInfo.rgb[0], config.gameInfo.rgb[1], config.gameInfo.rgb[2]);
 	return false;
 }
 
