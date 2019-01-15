@@ -9,12 +9,6 @@ fe.load_module("preserve-art");
 fe.load_module("shader");
 
 // --------------------
-// Config
-// --------------------
-
-fe.do_nut("config.nut");
-
-// --------------------
 // Layout User Options
 // --------------------
 
@@ -29,6 +23,12 @@ class UserConfig {
 		help="mvscomplete Layout",
 		order=userConfig.order++ />
 	general="";
+
+		</ label="Force 4:3 aspect",
+			help="Force video to play in 4:3 aspect ratio.",
+			options="Yes, No",
+			order=userConfig.order++ />
+		force="No";
 
 		</ label="Format Game Title",
 			help="Remove parenthesis, slashes, brackets and following text from game title.",
@@ -90,6 +90,112 @@ class UserConfig {
 		bloom="No";
 }
 local userConfig = fe.get_config();
+
+// --------------------
+// Config
+// --------------------
+
+fe.layout.font = "Roboto-Bold";
+
+local flw = fe.layout.width;
+local flh = fe.layout.height;
+local overscan = per(2, flh);
+
+local config = {};
+
+config.containerParent <- {
+	x = toBool(userConfig["force"]) ? (flw - matchAspect(4, 3, "height", flh)) / 2 : 0,
+	y = 0,
+	width = toBool(userConfig["force"]) ? matchAspect(4, 3, "height", flh) : flw,
+	height = flh,
+};
+
+config.container <- {
+	x = 0,
+	y = 0,
+	width = toBool(userConfig["force"]) ? matchAspect(4, 3, "height", flh) : flw,
+	height = flh,
+};
+
+config.video <- {
+	x = 0,
+	y = 0,
+	width = config.container.width,
+	height = config.container.height,
+};
+
+config.marquee <- {
+	x = 0,
+	y = 0,
+	width = config.container.width,
+	height = per(40, config.container.height),
+	rgb = [0, 0, 0],
+	alpha = 75,
+};
+
+config.artwork <- [];
+
+config.artwork.push({
+	x = overscan + (per(25, config.marquee.width-(overscan*2)) / 2) - (matchAspect(4, 5, "height", config.marquee.height - (overscan * 2)) / 2)
+	y = overscan,
+	width = matchAspect(4, 5, "height", config.marquee.height - (overscan * 2)),
+	height = config.marquee.height - (overscan * 2),
+});
+
+config.artwork.push({
+	x = config.artwork[0].x + per(25, config.marquee.width-(overscan*2)),
+	y = config.artwork[0].y,
+	width = config.artwork[0].width,
+	height = config.artwork[0].height,
+});
+
+config.artwork.push({
+	x = config.artwork[1].x + per(25, config.marquee.width-(overscan*2)),
+	y = config.artwork[0].y,
+	width = config.artwork[0].width,
+	height = config.artwork[0].height,
+});
+
+config.artwork.push({
+	x = config.artwork[2].x + per(25, config.marquee.width-(overscan*2)),
+	y = config.artwork[0].y,
+	width = config.artwork[0].width,
+	height = config.artwork[0].height,
+});
+
+config.artworkRadius <- overscan / 2;
+
+config.gameTitle <- {
+	x = overscan,
+	y = config.container.height - per(12, config.container.height - (overscan*2)) - (overscan*1.5),
+	width = per(62.5, config.container.width - (overscan*3)),
+	height = per(6, config.container.height - (overscan*2)),
+	align = Align.Left,
+}
+
+config.gameInfo <- {
+	x = overscan,
+	y = config.container.height - per(6, config.container.height - (overscan*2)) - overscan,
+	width = per(62.5, config.container.width - (overscan*3)),
+	height = per(6, config.container.height - (overscan*2)),
+	align = Align.Left,
+}
+
+config.displayName <- {
+	x = overscan + per(62.5, config.container.width - (overscan*3)),
+	y = config.container.height - per(12, config.container.height - (overscan*2)) - (overscan*1.5),
+	width = per(37.5, config.container.width - (overscan*3)),
+	height = per(6, config.container.height - (overscan*2)),
+	align = Align.Right,
+}
+
+config.filterName <- {
+	x = overscan + per(62.5, config.container.width - (overscan*3)),
+	y = config.container.height - per(6, config.container.height - (overscan*2)) - overscan,
+	width = per(37.5, config.container.width - (overscan*3)),
+	height = per(6, config.container.height - (overscan*2)),
+	align = Align.Right,
+}
 
 // --------------------
 // Functions
