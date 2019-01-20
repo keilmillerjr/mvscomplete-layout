@@ -246,14 +246,14 @@ function setFavoritesColor(obj) {
 
 function textOutline(obj, offset) {
 	try {
-		obj[0].x = obj[8].x - offset; // Top
-		obj[1].y = obj[8].y - offset; // Left
-		obj[2].x = obj[8].x + offset; // Bottom
-		obj[3].y = obj[8].y + offset; // Right
+		obj[0].x = obj[8].y - offset; // Top
+		obj[1].y = obj[8].x - offset; // Left
+		obj[2].x = obj[8].y + offset; // Bottom
+		obj[3].y = obj[8].x + offset; // Right
 		obj[4].set_pos(obj[8].x - offset, obj[8].y - offset); // Top Left
-		obj[5].set_pos(obj[8].x + offset, obj[8].y - offset); // Bottom Left
+		obj[5].set_pos(obj[8].x - offset, obj[8].y + offset); // Bottom Left
 		obj[6].set_pos(obj[8].x + offset, obj[8].y + offset); // Bottom Right
-		obj[7].set_pos(obj[8].x - offset, obj[8].y + offset); // Top Right
+		obj[7].set_pos(obj[8].x + offset, obj[8].y - offset); // Top Right
 	}
 	catch(e) {
 		printL("mvscomplete: invalid objects or offset passed to textOutline function");
@@ -265,19 +265,19 @@ function textShadow(obj, offset, direction) {
 		switch (direction) {
 			case "top":
 			case "t":
-				obj[0].x = obj[1].x - offset;
+				obj[0].y = obj[1].y - offset;
 				break;
 			case "left":
 			case "l":
-				obj[0].y = obj[1].y - offset;
+				obj[0].x = obj[1].x - offset;
 				break;
 			case "bottom":
 			case "b":
-				obj[0].x = obj[1].x + offset;
+				obj[0].y = obj[1].y + offset;
 				break;
 			case "right":
 			case "r":
-				obj[0].y = obj[1].y + offset;
+				obj[0].x = obj[1].x + offset;
 				break;
 			case "top-left":
 			case "tl":
@@ -285,7 +285,7 @@ function textShadow(obj, offset, direction) {
 				break;
 			case "bottom-left":
 			case "bl":
-				obj[0].set_pos(obj[1].x + offset, obj[1].y - offset);
+				obj[0].set_pos(obj[1].x - offset, obj[1].y + offset);
 				break;
 			case "bottom-right":
 			case "br":
@@ -293,7 +293,7 @@ function textShadow(obj, offset, direction) {
 				break;
 			case "top-right":
 			case "tr":
-				obj[0].set_pos(obj[1].x - offset, obj[1].y + offset);
+				obj[0].set_pos(obj[1].x + offset, obj[1].y - offset);
 				break;
 			default:
 				printL("mvscomplete: invalid direction passed to textShadow function");
@@ -452,7 +452,7 @@ local displayName = [];
 
 		if (i<1) setProps(displayName[i], config.displayNameShadow);
 	}
-	textShadow(displayName, overscan*0.25, "br");
+	textShadow(displayName, overscan*0.25, "bl");
 
 // ---------- Filter Name
 
@@ -463,7 +463,7 @@ local filterName = [];
 
 		if (i<1) setProps(filterName[i], config.filterNameShadow);
 	}
-	textShadow(filterName, overscan*0.25, "br");
+	textShadow(filterName, overscan*0.25, "bl");
 
 // --------------------
 // Sounds
