@@ -244,23 +244,7 @@ function setFavoritesColor(obj) {
 	}
 }
 
-function textOutline(obj, offset) {
-	try {
-		obj[0].x = obj[8].y - offset; // Top
-		obj[1].y = obj[8].x - offset; // Left
-		obj[2].x = obj[8].y + offset; // Bottom
-		obj[3].y = obj[8].x + offset; // Right
-		obj[4].set_pos(obj[8].x - offset, obj[8].y - offset); // Top Left
-		obj[5].set_pos(obj[8].x - offset, obj[8].y + offset); // Bottom Left
-		obj[6].set_pos(obj[8].x + offset, obj[8].y + offset); // Bottom Right
-		obj[7].set_pos(obj[8].x + offset, obj[8].y - offset); // Top Right
-	}
-	catch(e) {
-		printL("mvscomplete: invalid objects or offset passed to textOutline function");
-	}
-}
-
-function textShadow(obj, offset, direction) {
+function textShadow(obj, offset, direction="all") {
 	try {
 		switch (direction) {
 			case "top":
@@ -294,6 +278,16 @@ function textShadow(obj, offset, direction) {
 			case "top-right":
 			case "tr":
 				obj[0].set_pos(obj[1].x + offset, obj[1].y - offset);
+				break;
+			case "all":
+				obj[0].y = obj[8].y - offset;
+				obj[1].x = obj[8].x - offset;
+				obj[2].y = obj[8].y + offset;
+				obj[3].x = obj[8].x + offset;
+				obj[4].set_pos(obj[8].x - offset, obj[8].y - offset);
+				obj[5].set_pos(obj[8].x - offset, obj[8].y + offset);
+				obj[6].set_pos(obj[8].x + offset, obj[8].y + offset);
+				obj[7].set_pos(obj[8].x + offset, obj[8].y - offset);
 				break;
 			default:
 				printL("mvscomplete: invalid direction passed to textShadow function");
@@ -430,7 +424,7 @@ local gameTitle = [];
 
 		if (i<8) setProps(gameTitle[i], config.gameTitleOutline);
 	}
-	textOutline(gameTitle, overscan*0.25);
+	textShadow(gameTitle, overscan*0.25);
 
 // ---------- Game Info
 
