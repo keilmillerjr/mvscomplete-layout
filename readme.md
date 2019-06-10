@@ -23,7 +23,7 @@ You may need to change file paths as necessary if your differs.
 
 1. Copy layout files to ```~/.attract/layouts/mvscomplete/```
 2. The [Helpers module](https://github.com/keilmillerjr/helpers-module) is **v1.0.1 REQUIRED** for you to install. The layout will not work correctly without it.
-3. The [Shuffle module](https://github.com/keilmillerjr/shuffle-module) is **v1.0.0 REQUIRED** for you to install. The layout will not work correctly without it.
+3. The [Shuffle module](https://github.com/keilmillerjr/shuffle-module) is **v2.0.0 REQUIRED** for you to install. The layout will not work correctly without it.
 
 ## Optional Files
 
