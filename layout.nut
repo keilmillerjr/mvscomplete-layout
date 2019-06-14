@@ -334,23 +334,7 @@ local marquee = container.add_image(pixelPath, -1, -1, 1, 1);
 
 // ---------- Artwork
 
-class ShuffleArtwork extends Shuffle {
-	function _refresh() {
-		base._refresh();
 
-		for (local i=0; i<this._slots.len(); i++) {
-			if (this._slots[i].art.file_name.len() == 0) this._slots[i].art.file_name = "mini" + userConfig.miniArt + ".png";
-		}
-	}
-
-	function _refreshSelected(slot) {
-		shadeObject(slot, 100);
-	}
-
-	function _refreshDeselected(slot) {
-		shadeObject(slot, userConfig.artworkShade.tointeger());
-	}
-}
 
 local artwork = [];
 	for (local i=0; i<4; i++) {
@@ -361,19 +345,14 @@ local artwork = [];
 		artwork[i].mipmap = true;
 	}
 
+class ShuffleArtwork extends Shuffle {
+	function _refreshAll(slot) { if (slot.art.file_name.len() == 0) slots.art.file_name = "mini" + userConfig.miniArt + ".png"; }
+	function _refreshSelected(slot) { shadeObject(slot, 100); }
+	function _refreshDeselected(slot) { shadeObject(slot, userConfig.artworkShade.tointeger()); }
+}
 local shuffleArtwork = ShuffleArtwork({save="mvscomplete", slots=artwork, reset=false});
 
 // ---------- Logos
-
-class ShuffleLogos extends Shuffle {
-	function _refreshSelected(slot) {
-		shadeObject(slot, 100);
-	}
-
-	function _refreshDeselected(slot) {
-		shadeObject(slot, userConfig.artworkShade.tointeger());
-	}
-}
 
 local logos = [];
 	for (local i=0; i<4; i++) {
@@ -383,27 +362,13 @@ local logos = [];
 		artwork[i].mipmap = true;
 	}
 
+class ShuffleLogos extends Shuffle {
+	function _refreshSelected(slot) { shadeObject(slot, 100); }
+	function _refreshDeselected(slot) { shadeObject(slot, userConfig.artworkShade.tointeger()); }
+}
 local shuffleLogos = ShuffleLogos({save="mvscomplete", slots=logos, reset=false});
 
 // ---------- Favorites
-
-class ShuffleFavorites extends Shuffle {
-	function _refresh() {
-		base._refresh();
-
-		for (local i=0; i<this._slots.len(); i++) {
-			fe.game_info(Info.Favourite, this._slots[i].art.index_offset) == "1" ? this._slots[i].visible = true : this._slots[i].visible = false;
-		}
-	}
-
-	function _refreshSelected(slot) {
-		shadeObject(slot, 100);
-	}
-
-	function _refreshDeselected(slot) {
-		shadeObject(slot, userConfig.artworkShade.tointeger());
-	}
-}
 
 local favorites = [];
 	for (local i=0; i<4; i++) {
@@ -413,6 +378,11 @@ local favorites = [];
 		setFavoritesColor(favorites[i].art);
 	}
 
+class ShuffleFavorites extends Shuffle {
+	function _refreshAll(slot) { fe.game_info(Info.Favourite, slot.art.index_offset) == "1" ? slot.visible = true : slot.visible = false; }
+	function _refreshSelected(slot) { shadeObject(slot, 100); }
+	function _refreshDeselected(slot) { shadeObject(slot, userConfig.artworkShade.tointeger()); }
+}
 local shuffleFavorites = ShuffleFavorites({save="mvscomplete", slots=favorites, reset=false});
 
 // ---------- Game Title
